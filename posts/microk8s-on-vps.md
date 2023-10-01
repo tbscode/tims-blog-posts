@@ -115,6 +115,28 @@ Enable `metallb` via `microk8s enable metallb <your-ip>`.
 
 To make `metallb` work correctly, apply the patch described in [this GitHub comment](https://github.com/canonical/microk8s/issues/824#issuecomment-1003284063).
 
+
+```bash
+#!/bin/sh
+
+command -v kubectl > /dev/null 2>&1 && KUBECTL=kubectl
+command -v microk8s.kubectl > /dev/null 2>&1 && KUBECTL=microk8s.kubectl
+
+INGTMPFILE=$(mktemp -t ingress_daemonset.XXXXXXXX)
+
+trap "rm -f ${INGTMPFILE}" 0 1 2 3
+
+${KUBECTL} -n ingress get daemonset nginx-ingress-microk8s-controller -o yaml | \
+    sed -e 's|- --publish-status-address=.*|- --publish-service=$(POD_NAMESPACE)/ingress|' > ${INGTMPFILE}
+
+${KUBECTL} diff -f ${INGTMPFILE}
+if [ $? -eq 0 ]; then
+    echo "No changes need to be made"
+else
+    ${KUBECTL} apply -f ${INGTMPFILE}
+fi
+```
+
 You can now use LoadBalancer nodes that distribute the `<VPS-IP>`.
 
 ## Step 6: Set Up Cert Manager
@@ -140,7 +162,6 @@ spec:
    server: https://acme-v02.api.letsencrypt.org/directory
    privateKeySecretRef:
      name: lets-encrypt-private-key
-   # Add a single challenge solver, HTTP01 using nginx
    solvers:
    - http01:
        ingress:
