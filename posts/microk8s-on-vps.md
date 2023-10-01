@@ -1,7 +1,7 @@
 ---
 title: "Setting up a Private Kubernetes Cluster on Your Own VPS Using Microk8s"
 description: "A step-by-step guide to setting up a fully configurable private Kubernetes cluster"
-date: "2023-10-01T16:56:47+06:00"
+date: "2023-09-21T16:56:47+06:00"
 featured: true
 postOfTheMonth: false
 author: "Tim Schupp"

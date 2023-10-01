@@ -1,7 +1,7 @@
 ---
 title: "Simple Development PostgresDB setup on Microk8s via Helm"
 description: "Follow these simple steps to deploy and expose a basic Postgres database from your microk8s cluster."
-date: "2021-09-13T16:56:47+06:00"
+date: "2023-09-29T16:56:47+06:00"
 featured: true
 postOfTheMonth: false
 author: "Tim Schupp"
@@ -20,11 +20,11 @@ When setting up a simple staging environment, a quick to set up and somewhat per
 
 This post assumes you have a `microk8s` cluster set up with `cert-manager`, `ingress`, and `dns` setup, and a cluster issuer `letsencrypt-prod` configured.
 
-> To get started, you can follow [My Blog Post on Microk8s Private Cluster Setup]().
+> To get started, you can follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
 
 ### TL;DR 
 
-[Use this script](https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md) for swift deployment of this configuration:
+[Use this script](https://github.com/tbscode/tims-blog-posts/blob/main/assets/create_postgresdb.sh) for swift deployment of this configuration:
 
 ```bash
 ./create_postgresdb.sh \
@@ -40,7 +40,7 @@ This post assumes you have a `microk8s` cluster set up with `cert-manager`, `ing
 
 ### Configuration 
 
-Let's delve into [the script](https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md).
+Let's delve into [the script](https://github.com/tbscode/tims-blog-posts/blob/main/assets/create_postgresdb.sh).
 
 First, we create the namespace `microk8s kubectl create namespace $K8_NAMESPACE`.
 
