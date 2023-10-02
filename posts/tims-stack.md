@@ -1,7 +1,7 @@
 ---
-title: "Tim's Stack: Dynamic Cross-platform Web App Stack, deployed in Bunnyshell"
+title: "Tim's Stack: Dynamic Cross-platform Web App Stack, deployed with Bunnyshell"
 description: "This article showcases a high-performing web app stack I created for a recent Bunnyshell hackathon, using Docker, Kubernetes, Microk8s, Django and Next.js."
-date: "2023-09-26T16:56:47+06:00"
+date: "2023-09-28T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
@@ -9,9 +9,11 @@ categories: ["DevOps"]
 tags: ["Microk8s", "Kubernetes", "Django", "Helm", "Next.js", "Docker", "Bunnyshell"]
 ---
 
-> Checkout the [full stack code](https://github.com/tbscode/tims-stack-anystack) on my repo
+> UPDATE: We made 2. Place! 🥳 Checkout [the hackathon page](https://devpost.com/software/tim-s-stack-anystack).
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/_06vvSltvvY?si=ZMTgD9l2TFNTTa_2" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+> Checkout the [full stack code](https://github.com/tbscode/tims-stack-anystack) on my repo
 
 ## Introduction
 
