@@ -1,6 +1,6 @@
 ---
 title: "Quickly Deploy Any Next Js App On Kubernetes"
-description: "Simple steps to build push and deploy a next js app on kubernetes"
+description: "Simple steps to build, push, and deploy a Next.js app on Kubernetes"
 date: "2023-10-01T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
@@ -9,31 +9,28 @@ categories: ["DevOps", "Web Development"]
 tags: ["Microk8s", "Kubernetes", "Helm", "NextJS"]
 ---
 
-- docker files for defining development and production nextjs images
-- docker compose files for building and pushing images
-- nextjs config to export static files
-- simple helm chart to create deployment, serive and ingress for exposing our app
+This guide illustrates the steps required to build, push, and deploy a Next.js app on Kubernetes using docker files for defining development and production Next.js images. These docker compose files allow for the building and pushing of images, with a Next.js config able to export static files. A simple helm chart will create deployment, service, and ingress for exposing our app.
 
-> A template repo containing all required code and configs, [can be found here]()
-  
+Notably, a template repo containing all the required code and configs can be found [here](https://github.com/tbscode/nextjs-helm-template).
+
 ### Prerequisites
-  
-**This tutorial can also be adapted to work with any managed cluster**.
-I've been usining similar setups to quickly deploy nextjs apps for a while.
 
-Your cluster must have:
+This tutorial can also be adapted to work with any managed cluster as I've been using similar setups to quickly deploy Next.js apps for a while.
+
+For your cluster you'll need:
 
 - `cert-manger` cluster issuer with name `letsencrypt-prod` setup.
-- `nginx-ingress` installed
-- `helm` installed
-- Pulic IP and Host Url connected
+- `nginx-ingress` installed.
+- `helm` installed.
+- Public IP and Host Url connected.
 
+Further, a private container registry is required.
 
-> If you don't have a kubernetes cluster ready follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
+>If you don't have a Kubernetes cluster ready follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
 
-### 1. Start a nextjs app
+### 1. Start a Next.js App
 
-Lets start by creating a simple nextjs app:
+Begin by creating a simple Next.js app:
 
 ```
 npx create-next-app@latest
@@ -46,16 +43,16 @@ Would you like to use App Router? (recommended)  Yes
 Would you like to customize the default import alias (@/*)?  No
 ```
 
-Note we called the app `./frontend` so the respecive folder is created.
+We named the app `./frontend` so the respective folder is created.
 
-### 2. Dockerize the application
+### 2. Dockerize the Application
 
-We create two docker files:
+Two docker files can be created:
 
-1. [`./frontend/Dockerfile`](): Development docker file mounts frontend `./frontend` into the container for hot-reload
-2. [`./frontend/pro.dockerfile`](): Production docker file, staticly build whole application and nextjs in a container
+1. [`./frontend/Dockerfile`](https://github.com/tbscode/nextjs-helm-template/blob/main/frontend/Dockerfile): A development docker file that mounts frontend `./frontend` into the container for hot-reload.
+2. [`./frontend/pro.dockerfile`](https://github.com/tbscode/nextjs-helm-template/blob/main/frontend/prod.dockerfile): A production docker file that statically builds the entire application and Next.js in a container.
 
-The development docker file is simple:
+The development docker file is straightforward:
 
 ```Dockerfile
 FROM node:16-alpine
@@ -70,121 +67,22 @@ RUN npm i --save-dev
 ENTRYPOINT ["npm", "run", "dev"]
 ```
 
-We just rum `npm i` and then `npm run dev`. 
-Note that when mounted to the host the `./node_modules` dir will also be present on the host.
+Here, we execute `npm i` and then `npm run dev`. When mounted to the host, the `./node_modules` directory will also be present on the host.
 
-The production docker file [is based on nextjs example docker file]().
+The production docker file, which is based on the Next.js example docker file, can be found [here.](https://nextjs.org/docs/pages/building-your-application/deploying#docker-image)
 
-```Dockerfile
-FROM node:16-alpine AS deps
-RUN apk add --no-cache libc6-compat curl
-WORKDIR /app
+### 3. Compose Files for Development
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm i; \
-    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+Creating two compose files can pave the way for convenience:
 
-FROM node:16-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN apk add --no-cache curl
-RUN npm i
-RUN npm install --unsafe-perm -g sharp
+1. [`docker-compose.yaml`](https://github.com/tbscode/nextjs-helm-template/blob/main/docker-compose.yaml): A development compose file.
+2. [`docker-compose.pro.yaml`](https://github.com/tbscode/nextjs-helm-template/blob/main/docker-compose.pro.yaml): A production/ Local Infrastructure compose file.
 
-ENV NEXT_TELEMETRY_DISABLED 1
+Development is now always as straightforward as executing `docker-compose up`.
 
-RUN yarn build
+### 4. Creating a Helm Chart
 
-FROM node:16-alpine AS runner
-WORKDIR /app
-
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/content ./content
-COPY --from=builder /app/styles ./styles
-COPY --from=builder /app/public ./public
-
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3000
-
-ENV PORT 3000
-
-CMD ["node", "server.js"]
-```
-
-### 3. Compose files for development
-
-For convenience we create two compose files:
-
-1. [`docker-compose.yaml`](): 
-2. [`docker-compose.pro.yaml`]():
-
-```yaml
-version: '3'
-services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ./Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/frontend
-    environment:
-      ROOT_URL: 'http://localhost'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-```
-
-We use `./frontend` as build context and reference the development compose file.
-We forward port `3000` and finaly we mount the `./frontend` dir which gives us host reload of the code on the client.
-NextJS is smart entought to still connects it's htmr websocket so pages will also autoreload in browser if the code changes.
-
-For convenience we also create a simple production compose file.
-
-```yaml
-version: '3'
-services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ./prod.dockerfile
-    image: "$FRONTEND_IMAGE"
-    ports:
-      - "3000:3000"
-    environment:
-      ROOT_URL: "$ROOT_URL"
-```
-
-Note that we reference the production docker file `./prod.dockerfile` this time.
-And most importantly we inject the environment var `image: "$FRONTEND_IMAGE"` this is important as we will use it to tag the image and this changes depending on if we want to deploy this to our public cluster on test it locally.
-
-Conviently docker-compose source the `.env` file on build, so lets set some sensible defaults:
-
-```
-FRONTEND_IMAGE="localhost:32000/frontend:registry"
-ROOT_URL="http://localhost"
-```
-
-With these default added to the repo the local build will use a tag for the [microk8s local registry](https://microk8s.io/docs/registry-built-in)
-
-
-### 4. Create Helm Chart
-
-Now to easily manage the deployments and services we will need I prefere to create a simple helm chart that we can easily adopt, install and update.
-Our helm chart need the following composents:
+To effectively manage the deployments and services we require, we prefer to create a simple Helm chart that can easily be adapted, installed, and updated. Our Helm chart will need the following components:
 
 1. Frontend Deployment
 2. Registry Image Pull Secrets
@@ -192,37 +90,325 @@ Our helm chart need the following composents:
 4. Ingress
 
 ```
-microk8s helm create
+microk8s helm create ./helm
+cd ./helm/template && rm -rf *
 ```
 
-### 5. Test on local microk8s
+Everything will be deployed to a `rootNamespace`.
 
-I like to make sure that we can also deploy the whole infrastucture locally.
-For this purpose we can use a simple local `microk8s` installation.
+We have reset the template and created a simple setup for now [`./helm/template/frontend.yaml`](https://github.com/tbscode/nextjs-helm-template/blob/main/helm/templates/frontend.yaml).
+
+```yaml
+{{- if .Values.registryAuth.use }}
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+apiVersion: v1
+metadata:
+  name: dockerconfigjson-github-com
+  namespace: {{ .Values.rootNamespace }}
+stringData:
+  .dockerconfigjson: >
+    {{
+      (
+        dict "auths"
+        (
+          dict {{ .Values.registryAuth.registry }}
+          (
+            dict "auth" .Values.registryAuth.token
+          )
+        )
+      )
+      |
+      toJson
+    }}
+{{- end }}
+```
+
+We've created a simple flag `.Values.registryAuth.use` to check if registry authentication should be used (as we wouldn't need it for local microk8s deployment).
+We use `.Values.registryAuth.use` to define the registry that should be used.
+
+Now we define a simple deployment for our nextjs backend:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-container
+  namespace: {{ .Values.rootNamespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-container
+  template:
+    metadata:
+      labels:
+        app: frontend-container
+    spec:
+      containers:
+        - name: frontend-container
+          image: {{ .Values.frontend.imageURL }}
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: frontend-secrets
+      {{- if .Values.registryAuth.use }}
+      imagePullSecrets:
+        - name: dockerconfigjson-github-com
+      {{- end }}
+```
+
+Note that we inject the `imageURL` and the registry pull secret if required. We go on to expose the port `3000` to the cluster through a simple service.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: {{ .Values.rootNamespace }}
+  labels:
+    app: frontend-container
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: frontend-container
 
 ```
-microk8s enable ingress dns
+
+It's also advisable to create a secret that injects some general environment variables listed in `values.yaml:frontend.env.*`
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: frontend-secrets
+  namespace: {{ .Values.rootNamespace }}
+type: Opaque
+data:
+{{- range $key, $value := .Values.frontend.env }}
+  {{ $key }}: {{ $value | b64enc }}
+{{- end }}
 ```
 
-### 6. Deploy to private cluster
+Finally, we set up an ingress:
 
-For being able to deploy to a priate clutser you'll reed some package resgistry available.
+```yaml
+{{- if .Values.ingress.use }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: {{ .Values.rootNamespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/server-snippets: |
+      location /ws/ {
+        proxy_http_version 1.1;
+        proxy_redirect off;
+        proxy_buffering off;
+      } 
+    {{- if .Values.ingress.certManager }}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    {{- end }}
+    kubernetes.io/ingress.class: public
+spec:
+  {{- if .Values.ingress.certManager }}
+  tls:
+    - hosts:
+      - {{ .Values.ingress.host }}
+    secretName: frontend-ingress-tls
+  {{- end }}
+  rules:
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 3000
+{{- end }}
+```
 
-> If you qickly want a cheap registry [checkout my blogpost on deploying gittea in a private k8s cluster](/blog/microk8s-on-vps)
+We've introduced some flags to set up `tls` if required and some annotations to facilitate websocket forwards.
 
-#### Modify env for production
+#### Configuration via `Values.yaml`
 
-First of all we need to modify the environemnt to push to our private registry with a modified tag.
+Finally, to tie this all together, we create some default [`values.yaml`](https://github.com/tbscode/nextjs-helm-template/blob/main/helm/values.yaml)
+
+```yaml
+rootNamespace: "default"
+registryAuth:
+  registry: "localhost:32000"
+  use: false
+  token: ""
+ingress:
+  use: true
+  certManager: false
+  host: "localhost"
+frontend:
+  imageURL: "localhost:32000/frontend:registry"
+  env:
+    HOSTNAME: "localhost"
+```
+
+This can be used to control all the configuration options we just created.
+
+### 5. Testing on Local Microk8s
+
+It's always good to ensure that we can also deploy the entire infrastructure locally. For this, we can use a simple local `microk8s` installation.
 
 ```
+microk8s enable ingress dns registry
 docker-compose -f docker-compose.pro.yaml build
 docker-compose -f docker-compose.pro.yaml push
-microk8s helm install next-js-frontend ./helm/ --set rootNamespace="timsblog" --set ingress.use=true --set frontend.imageURL=""
 ```
 
-### 7. Repo automations
+Since we set up the template `.env` earlier, we're already configured to push and pull the image from `localhost:32000/frontend:registry`.
+So now, all we need to do is install our newly created chart:
 
-Now we have a simple process to deploy the repo using [github actions](https://github.com/features/actions).
-These actions can also be run on your own runners using [gittea actions](https://docs.gitea.com/usage/actions/overview).
+```
+microk8s helm install next-js-frontend ./helm/ --set rootNamespace="nextjsfront"
+```
 
-> Possiblities from here are unlimited, you can easily have any pull to the main deploy a feature environment or connect a backend to your nextjs app
+Since we also set up `$ROOT_URL="http://localhost"`, the ingress will be configured to route to `http://localhost`. Now let's check the browser:
+
+![Next page on localhost via microk8s](/static/assets/nextjs-page.jpg)
+
+### 6. Deploy to Private Cluster
+
+For the capability to deploy to a private cluster, you'll need a package registry available.
+
+>If you quickly want a cheap registry, you can check out my blog post on deploying Gitea in a private k8s cluster.
+
+#### Modify Environment for Production
+
+Firstly, we need to modify the environment to push to our private registry with a modified tag.
+
+```bash
+rm .env
+echo "FRONTEND_IMAGE=\"<your-frontend-image-url>\"" >> .env
+echo "ROOT_URL=\"<your-host-url>\"" >> .env
+```
+
+An example of an image URL is `my-gitea.example.com/gitea-private-user/package:latest`.
+A `ROOT_URL` could be something like `nextjs.example.com`.
+
+Note that you can restore the old default `.env` at any time using `git checkout .env`.
+
+We also need to encode access credentials to our registry so we can inject them into our secret.
+
+```bash
+echo "<your-registry-user>:<your-registry-password>" | base64
+```
+
+```bash
+docker-compose -f docker-compose.pro.yaml build
+docker-compose -f docker-compose.pro.yaml push
+KUBECONFIG="./kubeconfig.yaml" microk8s helm install next-js-frontend ./helm/ \
+--set rootNamespace="nextjsfront" \
+--set ingress.use=true \
+--set frontend.imageURL="<your-frontend-image-url>" \
+--set certManager.use=true \
+--set registryAuth.use=true \
+--set registryAuth.registry="<your-registry-host>" \
+--set registryAuth.token="<base64-encoded-token>"
+```
+
+> It works perfectly! In fact, this blog was deployed using this exact technique. 
+
+### 7. Repository Automations
+
+Now, we have a simple process to deploy the repository using GitHub Actions. 
+These actions can also run on your own runners using Gitea Actions.
+
+```yaml
+name: Deploy NextJs App
+    
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy NextJS App
+    steps:
+      - uses: actions/checkout@master
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          submodules: recursive
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Setup Kubeconfig
+        id: setup_kubeconfig
+        run: |
+          touch .env; rm .env
+          echo "${{ secrets.KUBE_CONFIG_BASE64 }}" | base64 -d > kubeconfig.yaml
+      - name: Setup Environment
+        id: setup_env
+        run: |
+          touch .env; rm .env; touch .env
+          RANDOM_STRING="$( openssl rand -hex 3 )"
+          FRONTEND_IMAGE="${{ secrets.CONTAINER_REGISTRY }}/${{ secrets.GITTEA_USER }}/nextjs-app:build-$RANDOM_STRING"
+          echo "FRONTEND_IMAGE=\"$FRONTEND_IMAGE\"" >> .env
+          echo "frontend_image=$FRONTEND_IMAGE" >> $GITHUB_OUTPUT
+      - name: Build And Push Image
+        run: |
+          echo ${{ secrets.GITTEA_PASSWORD }} | docker login ${{ secrets.CONTAINER_REGISTRY }} -u ${{ secrets.GITTEA_USER }} --password-stdin
+          DOCKER_BUILDKIT=1 docker-compose -f docker-compose.pro.yaml build
+          DOCKER_BUILDKIT=1 docker-compose -f docker-compose.pro.yaml push
+      - uses: azure/setup-helm@v3
+        with:
+           version: 'latest'
+           token: ${{ secrets.BOT_PAT }}
+        id: install-helm
+      - uses: azure/setup-kubectl@v3
+        with:
+           version: 'latest'
+        id: install-kubectl
+      - name: Setup Cluster Connection
+        id: cluster_connection
+        run: |
+          echo "Test"
+          REGISTRY_AUTH=$(echo -n "${{ secrets.GITTEA_USER }}:${{ secrets.GITTEA_PASSWORD }}" | base64)
+          KUBECONFIG=./kubeconfig.yaml kubectl create namespace nextjsnamespace || true
+          cat << EOF | while read eval_command; do yq -i eval "$eval_command" ./helm/values.yaml; done
+            .rootNamespace = "nextjsnamespace"
+            .ingress.host = "${{ secrets.BOT_PAT }}"
+            .frontend.imageURL = "${{ steps.setup_env.outputs.frontend_image }}"
+            .ingress.certManager = true
+            .registryAuth.token = "$REGISTRY_AUTH"
+            .registryAuth.use = true
+          EOF
+          KUBECONFIG=./kubeconfig.yaml helm upgrade next-js-app ./helm/ --set rootNamespace="nextjsnamespace" --install
+```
+
+Using the following secrets configured in your GitHub account:
+
+- `BOT_PAT`: GitHub bot access token
+- `GITTEA_USER`: Private registry user
+- `GITTEA_PASSWORD`: Private registry password or auth token
+- `CONTAINER_REGISTRY`: Container registry host address
+- `KUBE_CONFIG_BASE64`: Base64 encoded kubeconfig to connect to the k8s cluster
+
+#### Automation Steps
+
+1. Clone the repo and its sub-repos using `actions/checkout@master`.
+2. Setup the `.env` with a random image tag
+3. Build and push the production image using the generated tag
+4. Setup Helm and kubectl using the Azure actions `azure/setup-helm@v3`, `azure/setup-kubectl@v3`
+5. Modify `values.yaml` with our new configuration and update the Helm installation
+
+> Opportunities from here are limitless; you can easily have any pull to the main deploy a feature environment or connect a backend to your Next.js app.
