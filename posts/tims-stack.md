@@ -1,7 +1,7 @@
 ---
 title: "Tim's Stack: Dynamic Cross-platform Web App Stack, deployed with Bunnyshell"
 description: "This article showcases a high-performing web app stack I created for a recent Bunnyshell hackathon, using Docker, Kubernetes, Microk8s, Django and Next.js."
-date: "2023-09-28T16:56:47+06:00"
+date: "2023-07-09T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
