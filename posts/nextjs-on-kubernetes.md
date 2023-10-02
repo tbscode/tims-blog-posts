@@ -11,7 +11,7 @@ tags: ["Microk8s", "Kubernetes", "Helm", "NextJS"]
 
 This guide illustrates the steps required to build, push, and deploy a Next.js app on Kubernetes using docker files for defining development and production Next.js images. These docker compose files allow for the building and pushing of images, with a Next.js config able to export static files. A simple helm chart will create deployment, service, and ingress for exposing our app.
 
-Notably, a template repo containing all the required code and configs can be found [here](https://github.com/tbscode/nextjs-helm-template).
+> Template repo containing all the required code and configs can be [found on my github](https://github.com/tbscode/nextjs-helm-template).
 
 ### Prerequisites
 
@@ -26,7 +26,7 @@ For your cluster you'll need:
 
 Further, a private container registry is required.
 
->If you don't have a Kubernetes cluster ready follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
+> If you don't have a Kubernetes cluster ready follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
 
 ### 1. Start a Next.js App
 
@@ -70,6 +70,54 @@ ENTRYPOINT ["npm", "run", "dev"]
 Here, we execute `npm i` and then `npm run dev`. When mounted to the host, the `./node_modules` directory will also be present on the host.
 
 The production docker file, which is based on the Next.js example docker file, can be found [here.](https://nextjs.org/docs/pages/building-your-application/deploying#docker-image)
+
+```dockerfile
+FROM node:16-alpine AS deps
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm i; \
+    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
+
+FROM node:16-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN apk add --no-cache curl
+RUN npm i
+RUN npm install --unsafe-perm -g sharp
+
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN yarn build
+
+FROM node:16-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/styles ./styles
+COPY --from=builder /app/public ./public
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+```
 
 ### 3. Compose Files for Development
 
@@ -329,6 +377,8 @@ KUBECONFIG="./kubeconfig.yaml" microk8s helm install next-js-frontend ./helm/ \
 
 Now, we have a simple process to deploy the repository using GitHub Actions. 
 These actions can also run on your own runners using Gitea Actions.
+
+We create one simple workflow [`.github/workflow/deploy.yaml`](https://github.com/tbscode/nextjs-helm-template/blob/main/.github/workflow/deploy.yaml)
 
 ```yaml
 name: Deploy NextJs App
