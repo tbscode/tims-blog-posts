@@ -1,6 +1,6 @@
 ---
-title: "MariaDB on Kubernetes with backup cronjob"
-description: "Follow these simple steps to deploy and expose a basic MariaDB database from your microk8s cluster."
+title: "MariaDB on Kubernetes with Backup Cron-job"
+description: "This straightforward guide will walk you through deploying and exposing a basic MariaDB database on your microk8s Kubernetes cluster."
 date: "2023-09-29T16:56:47+06:00"
 featured: true
 postOfTheMonth: false
@@ -9,22 +9,25 @@ categories: ["DevOps"]
 tags: ["Microk8s", "Kubernetes", "Helm", "Postgresql"]
 ---
 
-When setting up a simple staging environment, a quick to set up and somewhat persistent database is often required. In case of MariaDB my preferred option is the [Bitnami Helm Chart](https://github.com/bitnami/charts/tree/main/bitnami/mariadb) with a little bit of configuration to achieve:
+Every now and then, when setting up a simple staging environment, the need for a quick-setup database that retains state consistently arises. In such situations, I often lean towards MariaDB, specifically utilizing the [Bitnami Helm Chart](https://github.com/bitnami/charts/tree/main/bitnami/mariadb), with slight tweaks to achieve the following:
 
-- An autoset and namespace setup
-- Accessibility through one host sub-domain + port
-- Easy hourly backups to a host path
+- An auto-set, namespace setup
+- Accessibility through a single host subdomain + port
+- Easy hourly backups to a specified host path
 - Exposure through TCP to the cluster host
 
 ### Prerequisites
 
-This post assumes you have a `microk8s` cluster set up with `cert-manager`, `ingress`, and `dns` setup, and a cluster issuer `letsencrypt-prod` configured.
+This post is operating under the assumption that you have a `microk8s` Kubernetes cluster already set up, complete with `cert-manager`, `ingress`, `dns` and an active and configured `letsencrypt-prod` cluster issuer.
 
-> To get started, you can follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
+> Note: To jumpstart your setup, you might find [this Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps) quite helpful.
 
 ### TL;DR 
 
-[Use this script](https://github.com/tbscode/tims-blog-posts/blob/main/assets/create_mariadb.sh) for swift deployment of this configuration:
+For a swift deployment of this configuration:
+
+1. [Grab this script](https://github.com/tbscode/tims-blog-posts/blob/main/assets/create_mariadb.sh)
+2. Then run it as follows:
 
 ```bash
 ./create_mariadb.sh \
@@ -33,41 +36,49 @@ This post assumes you have a `microk8s` cluster set up with `cert-manager`, `ing
   DB_USERNAME="<db-username>" \
   DB_PASSWORD="<your-super-secure-password>" \
   DB_NAME="<db-name>" \
-  TARGET_PORT="<>" \
+  TARGET_PORT="<desired-port>" \
   HOST_BACKUP_PATH="<your host backup volume>"
 ```
 
-> Remember to expose the port through your firewall `sudo ufw allow $TARGET_PORT`.
+> Remember to expose the desired port through your firewall with a `sudo ufw allow $TARGET_PORT` command.
   
-#### Uninstall:
+#### Uninstallation Process:
+
+Execute the following command: 
 
 ```
 microk8s helm uninstall $RELEASE_NAME
 ```
 
-#### Connect to the database
+#### Connecting to the Database
 
-```
+Use this command to establish a connection to the database:
+
+```bash
 docker run -it --rm --network="host" mysql mysql --host <your-host-domain> --port <your-port> --user <your-user> --password --protocol=TCP
 ```
 
-Enter the admin password when prompted.
+Remember to enter the admin password when prompted.
 
-#### Backup the database
+#### Backing up the Database
 
-We can also conveniently use a docker file for this!
+Here's a simple docker command for accomplishing this:
 
-```
+```bash
 docker run --network="host" --rm mysql:5.7 mysqldump -h localhost -P 30004 -u <your-user> -p<your-admin-password> --protocol=TCP <your-db-name> > backup.sql
 ```
 
 #### Host Backup Strategy
 
-I've created this simple example for a cron job to backup the database regularly.
+A straightforward example of a cron job that allows your database to be backed up regularly is created as follows:
+
+1. First, create a secret to hold your MariaDB credentials:
 
 ```bash
 microk8s kubectl create secret generic mariadb-creds --from-literal=password='$DB_PASSWORD' --from-literal=username='$DB_USER' -n $K8_NAMESPACE
 ```
+
+2. Then, define a CronJob in a yaml file:
 
 ```yaml
 apiVersion: batch/v1beta1
@@ -105,4 +116,4 @@ spec:
           restartPolicy: OnFailure
 ```
 
-As easy as that wew have a cron job running that creates hourly backups of our database.
+With this configuration in place, you would have a CronJob that executes hourly backups of the database.
