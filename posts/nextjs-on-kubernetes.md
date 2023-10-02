@@ -335,7 +335,7 @@ Since we also set up `$ROOT_URL="http://localhost"`, the ingress will be configu
 
 For the capability to deploy to a private cluster, you'll need a package registry available.
 
->If you quickly want a cheap registry, you can check out my blog post on deploying Gitea in a private k8s cluster.
+> If you quickly want a cheap registry, you can [check out my blog post](/blog/microk8s-gittea) on deploying Gitea in a private k8s cluster.
 
 #### Modify Environment for Production
 
