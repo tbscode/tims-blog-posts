@@ -5,7 +5,7 @@ date: "2023-07-09T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
-categories: ["DevOps"]
+categories: ["DevOps", "Hackathon"]
 tags: ["Microk8s", "Kubernetes", "Django", "Helm", "Next.js", "Docker", "Bunnyshell"]
 ---
 
