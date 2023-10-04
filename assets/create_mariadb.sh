@@ -85,7 +85,7 @@ spec:
                     secretKeyRef:
                       name: mariadb-creds
                       key: username
-              command: ["sh", "-c", 'mysqldump -h $RELEASE_NAME-mariadb.$K8_NAMESPACE.svc.cluster.local -P 3306 -u \$MYSQL_USER --protocol=TCP $DB_NAME > /backup/backup-$(date +%Y%m%d-%H%M%S).sql']
+              command: ["sh", "-c", 'mysqldump -h $RELEASE_NAME-mariadb.$K8_NAMESPACE.svc.cluster.local -P 3306 -u \$MYSQL_USER --protocol=TCP $DB_NAME > /backup/backup-\$(date +%Y%m%d-%H%M%S).sql']
           restartPolicy: OnFailure
 EOM
 
