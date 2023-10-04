@@ -63,10 +63,18 @@ ssh -i "<private-server-key>" <user-name>@<server-IP>
 ```bash
 sudo snap install microk8s --classic --channel=1.28
 sudo microk8s start
-microk8s enable ingress dns hostpath
+microk8s enable ingress dns hostpath ingress
 ```
 
-Then, edit `/var/snap/microk8s/current/certs/csr.conf.template`:
+We also need to enable some additional rules for the firewall ([see this github comment](https://github.com/canonical/microk8s/issues/2418#issuecomment-877350375)):
+
+```bash
+sudo ufw allow in on cali+
+sudo ufw allow out on cali+
+```
+
+To check for general configration issues use `microk8s inspect`
+No to konfigure kubeserver access through the host dns, edit `/var/snap/microk8s/current/certs/csr.conf.template`:
 
 ```bash
 [ alt_names ]
