@@ -2,7 +2,7 @@
 title: "MariaDB on Kubernetes with Backup Cron-job"
 description: "This straightforward guide will walk you through deploying and exposing a basic MariaDB database on your microk8s Kubernetes cluster."
 date: "2023-09-29T16:56:47+06:00"
-featured: true
+featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["DevOps"]
