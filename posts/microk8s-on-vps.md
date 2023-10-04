@@ -52,13 +52,13 @@ Then restart the ssh service `service ssh restart`
 
 ## Step 3: Set up and enable the firewall
 
-Set up the firewall to allow SSH, HTTP, HTTPS connections and also expose port `16433` which will be used to access the Kubeapi server.
+Set up the firewall to allow SSH, HTTP, HTTPS connections and also expose port `16443` which will be used to access the Kubeapi server.
 
 ```bash
 ufw allow ssh
 ufw allow http
 ufw allow https
-ufw allow 16433
+ufw allow 16443
 ufw enable
 ```
 
