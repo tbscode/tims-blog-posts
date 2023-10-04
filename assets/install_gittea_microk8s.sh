@@ -26,4 +26,8 @@ microk8s helm install $RELEASE_NAME gitea-charts/gitea \
     --set ingress.hosts[0].paths[0].path=/ \
     --set ingress.hosts[0].paths[0].pathType=Prefix \
     --set ingress.tls[0].secretName="git.$RELEASE_NAME-tls" \
-    --set ingress.tls[0].hosts[0]="$INGRESS_HOST"
+    --set ingress.tls[0].hosts[0]="$INGRESS_HOST" \
+    --set "gitea.additionalConfigFromEnvs[0].name=GITEA__ACTIONS__ENABLED" \
+    --set "gitea.additionalConfigFromEnvs[0].value=\"true\"" \
+    --set "gitea.additionalConfigFromEnvs[1].name=GITEA__SERVICE__REQUIRE_SIGNIN_VIEW" \
+    --set "gitea.additionalConfigFromEnvs[1].value=\"true\""
