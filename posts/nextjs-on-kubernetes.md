@@ -362,13 +362,13 @@ echo "<your-registry-user>:<your-registry-password>" | base64
 docker-compose -f docker-compose.pro.yaml build
 docker-compose -f docker-compose.pro.yaml push
 KUBECONFIG="./kubeconfig.yaml" microk8s helm install next-js-frontend ./helm/ \
---set rootNamespace="nextjsfront" \
---set ingress.use=true \
---set frontend.imageURL="<your-frontend-image-url>" \
---set certManager.use=true \
---set registryAuth.use=true \
---set registryAuth.registry="<your-registry-host>" \
---set registryAuth.token="<base64-encoded-token>"
+  --set rootNamespace="nextjsfront" \
+  --set ingress.use=true \
+  --set frontend.imageURL="<your-frontend-image-url>" \
+  --set certManager.use=true \
+  --set registryAuth.use=true \
+  --set registryAuth.registry="<your-registry-host>" \
+  --set registryAuth.token="<base64-encoded-token>"
 ```
 
 > It works perfectly! In fact, this blog was deployed using this exact technique. 
