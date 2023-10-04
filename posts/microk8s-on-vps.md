@@ -32,6 +32,7 @@ usermod -aG sudo <user-name>
 ## Step 2: Create SSH keys
 
 On your local machine, create SSH keys to access the server.
+Set a secure password for the key.
 
 ```bash
 ssh-keygen -b 2048 -t rsa
@@ -39,6 +40,15 @@ chmod 600 <key-file> <key-file>.pub
 ```
 
 Copy the content of `<key-name>.pub` to your VPS at `/home/<user-name>/authorized_keys`.
+
+Now we edit the ssh config to require the ssh key, edit `/etc/ssh/sshd_config`
+
+```bash
+PasswordAuthentication no # yes before
+PubkeyAuthentication yes # no before
+```
+
+Then restart the ssh service `service ssh restart`
 
 ## Step 3: Set up and enable the firewall
 
@@ -63,7 +73,29 @@ ssh -i "<private-server-key>" <user-name>@<server-IP>
 ```bash
 sudo snap install microk8s --classic --channel=1.28
 sudo microk8s start
-microk8s enable ingress dns hostpath ingress
+microk8s enable ingress dns hostpath cert-manager
+```
+
+Now we create a default cluster issuer: `letsencrypt-prod`:
+
+```bash
+microk8s kubectl apply -f - <<EOF
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+ name: letsencrypt-prod
+spec:
+ acme:
+   email: <your email>
+   server: https://acme-v02.api.letsencrypt.org/directory
+   privateKeySecretRef:
+     name: lets-encrypt-priviate-key
+   solvers:
+   - http01:
+       ingress:
+         class: public
+EOF
 ```
 
 We also need to enable some additional rules for the firewall ([see this github comment](https://github.com/canonical/microk8s/issues/2418#issuecomment-877350375)):
