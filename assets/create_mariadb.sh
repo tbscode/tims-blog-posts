@@ -47,8 +47,9 @@ spec:
 EOM
 
 microk8s kubectl apply -f - <<< "$INGRESS_CONFIG"
+
 microk8s kubectl delete secret mariadb-creds -n $K8_NAMESPACE || true
-microk8s kubectl create secret generic mariadb-creds --from-literal=password='$DB_PASSWORD' --from-literal=username='$DB_USER' -n $K8_NAMESPACE
+microk8s kubectl create secret generic mariadb-creds --from-literal=password=$DB_PASSWORD --from-literal=username=$DB_USERNAME -n $K8_NAMESPACE
 
 
 read -r -d '' BACKUP_JOB << EOM
@@ -84,7 +85,7 @@ spec:
                     secretKeyRef:
                       name: mariadb-creds
                       key: username
-              command: ["sh", "-c", 'mysqldump -h $RELEASE_NAME.$K8_NAMESPACE.svc.cluster.local -P 3306 -u \$MYSQL_USER --protocol=TCP $DB_NAME > /backup/backup-$(date +%Y%m%d-%H%M%S).sql']
+              command: ["sh", "-c", 'mysqldump -h $RELEASE_NAME-mariadb.$K8_NAMESPACE.svc.cluster.local -P 3306 -u \$MYSQL_USER --protocol=TCP $DB_NAME > /backup/backup-$(date +%Y%m%d-%H%M%S).sql']
           restartPolicy: OnFailure
 EOM
 
