@@ -73,7 +73,7 @@ ssh -i "<private-server-key>" <user-name>@<server-IP>
 ```bash
 sudo snap install microk8s --classic --channel=1.28
 sudo microk8s start
-microk8s enable ingress dns hostpath cert-manager
+microk8s enable ingress dns hostpath-storage cert-manager
 ```
 
 Now we create a default cluster issuer: `letsencrypt-prod`:
@@ -151,7 +151,7 @@ Create a specific or one wildcard DNS entry:
 *.<your-domain> -> <vps-ip>
 ```
 
-Enable `metallb` via `microk8s enable metallb <your-ip>`.
+Enable `metallb` via `microk8s enable metallb:<your-ip>-<your-ip>`.
 
 To make `metallb` work correctly, apply the patch described in [this GitHub comment](https://github.com/canonical/microk8s/issues/824#issuecomment-1003284063).
 
