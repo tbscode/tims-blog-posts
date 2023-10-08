@@ -40,6 +40,7 @@ For a swift deployment of this configuration:
   HOST_BACKUP_PATH="<your host backup volume>"
 ```
 
+
 > Remember to expose the desired port through your firewall with a `sudo ufw allow $TARGET_PORT` command.
   
 #### Uninstallation Process:
@@ -55,9 +56,10 @@ microk8s helm uninstall $RELEASE_NAME
 Use this command to establish a connection to the database:
 
 ```bash
-docker run -it --rm --network="host" mysql mysql --host <your-host-domain> --port <your-port> --user <your-user> --password --protocol=TCP
+docker run -it --rm  mysql mysql --host <your-host-domain> --port <your-port> --user <your-user> --password --protocol=TCP
 ```
 
+Or use this with `--network="host"` if your testing a local server.
 Remember to enter the admin password when prompted.
 
 #### Backing up the Database
@@ -117,3 +119,4 @@ spec:
 ```
 
 With this configuration in place, you would have a CronJob that executes hourly backups of the database.
+
