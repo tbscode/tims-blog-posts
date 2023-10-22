@@ -9,7 +9,7 @@ categories: ["DevelopmentUpdates"]
 tags: ["Msgmateio", "Kubernetes"]
 ---
 
-Since launching Msgmate.io at the end of March, we've seen a lot of activity and received a myriad of feedback regarding its services and development.
+Since launching [Msgmate.io](https://msgmate.io) at the end of March, we've seen a lot of activity and received a myriad of feedback regarding its services and development.
 
 However, the development of the direct Msgmate feature has been quite restricted. As a result, the updates that are visible to the public have also been very limited. Therefore, I am writing this article to shed some light on what's in store for Msgmate's future.
 
@@ -17,12 +17,75 @@ Please note that this article is somewhat technical in nature!
 
 ### Statistics
 
+<div style="
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+">
+    <div style="
+        background-color: #2C333A;
+        padding: 20px;
+        border-radius: 10px;
+        width: 20%;
+        text-align: center;
+        min-width: 320px;
+    ">
+        <h2 style="color: #E88388; font-size: 24px;">
+            <strong>Registered Users:</strong>
+        </h2>
+        <p>300</p>
+    </div>
+    <div style="
+        background-color: #2C333A;
+        padding: 20px;
+        border-radius: 10px;
+        width: 20%;
+        text-align: center;
+        min-width: 320px;
+    ">
+        <h2 style="color: #E88388; font-size: 24px;">
+            <strong>Messages Exchanged:</strong>
+        </h2>
+        <p>6,331</p>
+    </div>
+    <div style="
+        background-color: #2C333A;
+        padding: 20px;
+        border-radius: 10px;
+        width: 20%;
+        text-align: center;
+        min-width: 320px;
+    ">
+        <h2 style="color: #E88388; font-size: 24px;">
+            <strong>Tokens Used:</strong>
+        </h2>
+        <p>579,807+</p>
+    </div>
+    <div style="
+        background-color: #2C333A;
+        padding: 20px;
+        border-radius: 10px;
+        width: 20%;
+        text-align: center;
+        min-width: 320px;
+        margin-bottom: 0 !important;
+    ">
+        <h2 style="color: #E88388; font-size: 24px;">
+            <strong>Images Generated:</strong>
+        </h2>
+        <p>192</p>
+    </div>
+</div>
+
 Since the alpha launch in March, we've had 300 users register. A total of 6,331 messages have been exchanged, using over 579,807+ tokens for prompts and completions. Furthermore, a total of 192 images have been generated.
 
 > I've received feedback indicating interest in such a service.
 > However, there were also critical comments concerning the current reliability and limited range of features available.
 
 Rest assured, I am taking all feedback seriously and am actively working to bring you a better and enhanced user experience.
+
+<strong style="color: red;">For now we limited msgmate.io alpha registrations untill we scaled our bot service to handle more chats in paralel</strong>
+
 
 ### Development in the Software Stack
 
@@ -39,7 +102,13 @@ My interest in large language models and their immediate applications in everyda
 |5|[Tim's Stack Anystack](https://github.com/tbscode/tims-stack-anystack)|Clean re-write of the stack, adding automation documentation, and more. During the Bunnyshell Jamstack Hackathon, I had the unique opportunity to|
 |6|[Tim's Stack V2](https://github.com/tbscode/tims-stack-v2)|Dawn of a new age ;) Finalization work on the stack has started with the objective of making it out-of-the-box ready, usable state.|
 
+All these updated work towards shaping the backend that msgmate.io uses and making it more robust and scalable! The bigger beta update planned for msgmate will be using the update Tims Stack V2 and there are plans for launching an android and ios app along side the new backend and interface.
+
 ### The Stack Won 2. Place!
+
+As mentioned in the Above list [I've participated in a Hackathon using my Stack](https://blog.t1m.me/blog/tims-stack). 
+
+> 🥳 Checkout [the hackathon page](https://devpost.com/software/tim-s-stack-anystack).
 
 My efforts in the Bunnyshell hackathon didn't go to waste, as we managed to secure second place and win `$4000`, which I'll be reinvesting in the development of Msgmate.io!
 
