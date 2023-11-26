@@ -14,12 +14,10 @@ $KUBECMD_PREFIX helm repo update
 # Install PostgreSQL with Helm and custom values
 $KUBECMD_PREFIX helm install $RELEASE_NAME bitnami/postgresql \
     -n $K8_NAMESPACE \
-    --set auth.enablePostgresUser=true \
-    --set auth.postgresPassword="$DB_PASSWORD" \
-    --set auth.username="$DB_USERNAME" \
-    --set auth.password="$DB_PASSWORD" \
-    --set auth.database="$DB_NAME" \
-    --set tls.enabled=true \
+    --set global.postgresql.auth.postgresPassword="$DB_PASSWORD" \
+    --set global.postgresql.auth.username="$DB_USERNAME" \
+    --set global.postgresql.auth.password="$DB_PASSWORD" \
+    --set global.postgresql.auth.database="$DB_NAME" \
     --set primary.service.type=LoadBalancer \
     --set primary.service.annotations."external-dns\.alpha\.kubernetes\.io/hostname"=$DB_DOMAIN \
     --set backup.enabled=true \
@@ -35,10 +33,10 @@ metadata:
   name: ${RELEASE_NAME}-ingress
   namespace: $K8_NAMESPACE
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: "nginx"
   tls:
   - hosts:
     - $DB_DOMAIN
