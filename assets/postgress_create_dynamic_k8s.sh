@@ -1,71 +1,59 @@
 #!/bin/bash
-KUBECMD_PREFIX="${KUBECMD_PREFIX=:=microk8s}"
 
+CERT_SECRET_NAME="${RELEASE_NAME}-tls"
+
+KUBECMD_PREFIX="${KUBECMD_PREFIX:=microk8s}"
+
+# Create namespace
 $KUBECMD_PREFIX kubectl create namespace $K8_NAMESPACE || true
 
-# Create certificate
-read -r -d '' CERTIFICATE << EOM
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: postgresql-cert
-  namespace: $K8_NAMESPACE
-spec:
-  secretName: postgresql-tls-secret
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  commonName: $DB_HOSTNAME
-  dnsNames:
-  - $DB_HOSTNAME
-EOM
+# Add the Bitnami Helm repository and update
+$KUBECMD_PREFIX helm repo add bitnami https://charts.bitnami.com/bitnami
+$KUBECMD_PREFIX helm repo update
 
-$KUBECMD_PREFIX kubectl apply -f - <<< "$CERTIFICATE"
-
-# Delay for certificate creation
-echo "Waiting 5 minutes for the certificate to be issued..."
-sleep 300
-
-# Install Postgresql
-$KUBECMD_PREFIX helm install $RELEASE_NAME oci://registry-1.docker.io/bitnamicharts/postgresql \
+# Install PostgreSQL with Helm and custom values
+$KUBECMD_PREFIX helm install $RELEASE_NAME bitnami/postgresql \
     -n $K8_NAMESPACE \
-    --set global.postgresql.auth.username="$DB_USERNAME" \
-    --set global.postgresql.auth.password="$DB_PASSWORD" \
-    --set global.postgresql.auth.database="$DB_NAME" \
-    --set clusterDomain="$DB_CLUSTER_DOMAIN" \
+    --set auth.enablePostgresUser=true \
+    --set auth.postgresPassword="$DB_PASSWORD" \
+    --set auth.username="$DB_USERNAME" \
+    --set auth.password="$DB_PASSWORD" \
+    --set auth.database="$DB_NAME" \
+    --set tls.enabled=true \
+    --set primary.service.type=LoadBalancer \
+    --set primary.service.annotations."external-dns\.alpha\.kubernetes\.io/hostname"=$DB_DOMAIN \
     --set backup.enabled=true \
     --set backup.cronjob.schedule="@hourly" \
     --set backup.cronjob.concurrencyPolicy=Allow \
-    --set backup.cronjob.storage.mountPath="$BACKUP_MOUNT_PATH" \
-    --set global.postgresql.ssl.enabled=true \
-    --set global.postgresql.ssl.secret="postgresql-tls-secret"
+    --set backup.cronjob.storage.mountPath="$BACKUP_MOUNT_PATH"
 
-# Create service and ingress
-read -r -d '' INGRESS_CONFIG << EOM
-apiVersion: v1
-kind: ConfigMap
+# Apply Ingress resource to route external traffic to PostgreSQL through cert-manager
+read -r -d '' INGRESS_MANIFEST << EOM
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: nginx-ingress-tcp-microk8s-conf
-  namespace: ingress
-data:
-  5432: "$K8_NAMESPACE/$RELEASE_NAME-postgresql:5432"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: $RELEASE_NAME-nodeport
+  name: ${RELEASE_NAME}-ingress
   namespace: $K8_NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  type: NodePort
-  ports:
-    - name: tcp-postgresql
-      protocol: TCP
-      port: 5432
-      targetPort: 5432
-      nodePort: $TARGET_PORT
-  selector:
-    app.kubernetes.io/instance: $RELEASE_NAME
-    app.kubernetes.io/name: postgresql
+  tls:
+  - hosts:
+    - $DB_DOMAIN
+    secretName: $CERT_SECRET_NAME
+  rules:
+  - host: $DB_DOMAIN
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ${RELEASE_NAME}-postgresql
+            port:
+              number: 5432
 EOM
 
-$KUBECMD_PREFIX kubectl apply -f - <<< "$INGRESS_CONFIG"
+$KUBECMD_PREFIX kubectl apply -f - <<< "$INGRESS_MANIFEST"
