@@ -50,6 +50,8 @@ PubkeyAuthentication yes # no before
 
 Then restart the ssh service `service ssh restart`
 
+> Note: these are minimal ssh setup setups and depending on the environment extra steps should be taken to make ssh more robust agains outside attacks.
+
 ## Step 3: Set up and enable the firewall
 
 Set up the firewall to allow SSH, HTTP, HTTPS connections and also expose port `16443` which will be used to access the Kubeapi server.
@@ -222,8 +224,6 @@ kubectl patch svc nodeport -p '{"spec":{"externalTrafficPolicy":"Local"}}'
 ```bash
 kubectl expose deployment source-ip-app --name=loadbalancer --port=80 --target-port=8080 --type=LoadBalancer
 ```
-
-
 
 ## Conclusion
 
