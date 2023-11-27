@@ -112,3 +112,6 @@ Create a token by Base64 encoding the `user:password` string:
 echo "<gitea-admin>:<gitea-admin-password" | base64
 ```
 This will allow you to pull from your private repositories.
+
+### Setting up gitea action runners via helm
+
