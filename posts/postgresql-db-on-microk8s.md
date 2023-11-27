@@ -1,86 +1,87 @@
 ---
-title: "Simple Development PostgresDB setup on Microk8s via Helm"
-description: "Follow these simple steps to deploy and expose a basic Postgres database from your microk8s cluster."
-date: "2023-09-29T16:56:47+06:00"
-featured: true
+title: "Setting Up a Secure Bitnami PostgreSQL Instance on Microk8s"
+description: "This guide provides a step-by-step approach to installing a PostgreSQL database using Bitnami's Helm chart on a Microk8s cluster, including TLS configuration for enhanced security."
+date: "2023-09-30"
+featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
-categories: ["DevOps"]
-tags: ["Microk8s", "Kubernetes", "Helm", "Postgresql"]
+categories: ["DevOps", "Database"]
+tags: ["Microk8s", "Kubernetes", "Helm", "Postgresql", "cert-manager", "TLS", "Python", "SSL"]
 ---
 
-When setting up a simple staging environment, a quick to set up and somewhat persistent database is often required. My preferred option is the [Bitnami Helm Chart](oci://registry-1.docker.io/bitnamicharts/postgresql) with a little bit of configuration to achieve:
+Deploying Postgres on Kubernetes need not be complex. With automation in place, you can deploy a secure and isolated instance of PostgreSQL within your Microk8s cluster using Bitnami's Helm chart. The updated script covers everything from provisioning TLS certificates to configuring the database for secure connections.
 
-- An autoset and namespace setup
-- Accessibility through one host sub-domain + port
-- Easy hourly backups to a host path
-- Exposure through TCP to the cluster host
+### Preparing the Environment
 
-### Prerequisites
-
-This post assumes you have a `microk8s` cluster set up with `cert-manager`, `ingress`, and `dns` setup, and a cluster issuer `letsencrypt-prod` configured.
-
-> To get started, you can follow [My Blog Post on Microk8s Private Cluster Setup](/blog/microk8s-on-vps).
-
-### TL;DR 
-
-[Use this script](https://github.com/tbscode/tims-blog-posts/blob/main/assets/create_postgresdb.sh) for swift deployment of this configuration:
+The process starts with some initial setup tasks. We create a Kubernetes namespace for the PostgreSQL instance and establish the baseline for our commands:
 
 ```bash
-./create_postgresdb.sh \
-  RELEASE_NAME="<release-name>" \
-  K8_NAMESPACE="<installation-namespace>" \
-  DB_USERNAME="<db-username>" \
-  DB_PASSWORD="<your-super-secure-password>" \
-  DB_NAME="<db-name>" \
-  DB_CLUSTER_DOMAIN="<your-custom-domain>" \
-  BACKUP_MOUNT_PATH="/some-host-path" \
-  TARGET_PORT="<target-port(>30000,<40000)>"
+#!/bin/bash
+
+KUBECMD_PREFIX="${KUBECMD_PREFIX:=microk8s}"
+CERT_MANAGER_NAMESPACE="cert-manager"
+
+$KUBECMD_PREFIX kubectl create namespace $K8_NAMESPACE || true
 ```
 
-### Configuration 
+### Configuring SSL/TLS Encryption
 
-Let's delve into [the script](https://github.com/tbscode/tims-blog-posts/blob/main/assets/create_postgresdb.sh).
-
-First, we create the namespace `microk8s kubectl create namespace $K8_NAMESPACE`.
-
-Next, we essentially install the [Bitnami Helm Chart](oci://registry-1.docker.io/bitnamicharts/postgresql) with a few configurations:
+With cert-manager installed in our cluster, we can automatically provision and manage TLS certificates. This is a crucial step in ensuring that our database communication is encrypted:
 
 ```bash
+cat <<EOF | $KUBECMD_PREFIX kubectl apply -f -
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: $RELEASE_NAME-postgresql-tls
+  namespace: $K8_NAMESPACE
+spec:
+  secretName: $RELEASE_NAME-postgresql-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  dnsNames:
+  - $DB_HOSTNAME
+EOF
+```
+
+It's imperative to wait for the certificate to become ready. This script assures that by incorporating a timeout for the process:
+
+```bash
+$KUBECMD_PREFIX kubectl -n $K8_NAMESPACE wait --for=condition=ready certificate $RELEASE_NAME-postgresql-tls --timeout=300s
+```
+
+### Installing PostgreSQL with Helm
+
+Having confirmed that the TLS certificate is in place, we proceed with the Helm chart installation:
+
+```bash
+$KUBECMD_PREFIX helm install $RELEASE_NAME oci://registry-1.docker.io/bitnamicharts/postgresql \
+    -n $K8_NAMESPACE \
     --set global.postgresql.auth.username="$DB_USERNAME" \
     --set global.postgresql.auth.password="$DB_PASSWORD" \
-    --set global.postgresql.auth.database="$DB_NAME" \
-    --set clusterDomain="$DB_CLUSTER_DOMAIN" \
+    ...
+    --set tls.certificatesSecret="$RELEASE_NAME-postgresql-tls" \
+    --set tls.certFilename="tls.crt" \
+    --set tls.certKeyFilename="tls.key"
 ```
 
-Here, we create the base admin user and configure the password and username. We also configure a default base database `$DB_NAME`.
+The script passes the appropriate values to Helm, signaling it to deploy Postgres with TLS enabled.
+
+### Networking Configuration
+
+The `ConfigMap` and `Service` definitions are applied to route external traffic to the Postgres instance:
 
 ```bash
-    --set backup.enabled=true \
-    --set backup.cronjob.schedule="@hourly" \
-    --set backup.cronjob.concurrencyPolicy=Allow \
-    --set backup.cronjob.storage.mountPath="$BACKUP_MOUNT_PATH"
-``` 
-
-The Helm Chart conveniently supports backups. We configure it to perform a DB dump onto the server every hour.
-
-> For any critical task, backups should be encrypted and synced to an additional S3 storage.
-
-Now, we need to configure the microk8s `nginx-ingress-tcp-microk8s-conf` to expose the TCP traffic - through port `5432` of our PostgreSQL deployment - for accessibility through the `$CLUSTER_DOMAIN`.
-
-```yaml
+read -r -d '' INGRESS_CONFIG << EOM
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-ingress-tcp-microk8s-conf
   namespace: ingress
+  name: nginx-ingress-tcp-microk8s-conf
 data:
   5432: "$K8_NAMESPACE/$RELEASE_NAME-postgresql:5432"
-```
-
-Finally, we create a service to route this port to our host.
-
-```yaml
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -88,49 +89,50 @@ metadata:
   namespace: $K8_NAMESPACE
 spec:
   type: NodePort
-  ports:
-    - name: tcp-postgresql
-      protocol: TCP
-      port: 5432
-      targetPort: 5432
-      nodePort: $TARGET_PORT
-  selector:
-    app.kubernetes.io/instance: $RELEASE_NAME
-    app.kubernetes.io/name: postgresql
+  ...
+  nodePort: $TARGET_PORT
+  ...
+EOM
+
+$KUBECMD_PREFIX kubectl apply -f - <<< "$INGRESS_CONFIG"
 ```
 
-> Remember to expose the port through your firewall `sudo ufw allow $TARGET_PORT`.
+### Testing the Database Connection
 
-Now, you can test the connection to the database:
-
-```
-psql -h <your-domain> -u <user-name>
-```
-
-Or configure the settings of a Django app to access the database:
+Once deployed, verify the secure connection using Python and the `psycopg2` library. The script aims to establish a connection, execute a command, and then gracefully terminate the connection:
 
 ```python
-# settings.py
+import psycopg2
 
-DATABASES = {
-    'default': {
-        'ENGINE': DB_ENGINE,
-        'NAME': os.environ['DB_NAME'],
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': "<yourdb-host-domain>"
-        'PORT': "<yourdb-port>
-        'OPTIONS': {'sslmode': 'require'}
-    }
-}
+conn = None
+try:
+    conn = psycopg2.connect(
+        dbname='...',
+        user='...',
+        password='...',
+        host='...',
+        port='...',
+        sslmode='require'
+    )
+
+    print("Success: Connected to the database!")
+    cur = conn.cursor()
+    cur.execute("SELECT version();")
+    record = cur.fetchone()
+    print("You are connected to - ", record, "\n")
+    cur.close()
+except (Exception, psycopg2.DatabaseError) as error:
+    print("Error: ", error)
+finally:
+    if conn is not None:
+        conn.close()
+        print("Database connection closed.")
 ```
 
-> Always set `{'sslmode': 'require'}` to ensure the traffic to the server is encrypted.
+By requiring `sslmode='require'`, the script confirms that the connection is not only secure but also compliant with best practices.
 
-#### Restoring Backups 
+### Wrapping Up
 
-As per configuration, hourly backups are written to `$BACKUP_MOUNT_PATH`. To restore a backup, simply use a `psql` client and the database credentials:
+The combination of Microk8s's simplicity and Helm's power simplifies the deployment of a robust PostgreSQL database. TLS encryption, managed by cert-manager, makes sure the data remains secure in transit. For developers and administrators looking to setup PostgreSQL on Kubernetes, the process is now streamlined, automated, and immeasurably more secure than before.
 
-```
-psql -U [postgres-user] -p [database-port] -h [postgres-ip] -d [database-name] -f database.sql
-```
+Do check out the full deployment script and accompanying resources on the [GitHub repository](https://github.com/tbscode/tims-blog-posts/blob/main/assets/postgress_create_dynamic_k8s.sh) and ensure your databases are secure from setup to daily operations.
