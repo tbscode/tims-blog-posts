@@ -1,6 +1,6 @@
 ---
-title: ""
-description: "Self Hosted Error Tracking and Reporting using Selntry Kubernetes and Helm"
+title: "Self Host Sentry using Helm"
+description: "Self Hosted Error Tracking and Reporting using Sentry Kubernetes and Helm"
 date: "2023-10-26T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
