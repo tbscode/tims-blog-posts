@@ -39,7 +39,7 @@ ssh-keygen -b 2048 -t rsa
 chmod 600 <key-file> <key-file>.pub
 ```
 
-Copy the content of `<key-name>.pub` to your VPS at `/home/<user-name>/authorized_keys`.
+Copy the content of `<key-name>.pub` to your VPS at `/home/<user-name>/.ssh/authorized_keys`.
 
 Now we edit the ssh config to require the ssh key, edit `/etc/ssh/sshd_config`
 
@@ -72,8 +72,15 @@ ssh -i "<private-server-key>" <user-name>@<server-IP>
 
 ```bash
 sudo snap install microk8s --classic --channel=1.28
+sudo microk8s enable rbac
 sudo microk8s start
 microk8s enable ingress dns hostpath-storage cert-manager
+```
+
+If you want to use the current user to manage microk8s; this is not recomended for production clusters
+
+```
+sudo usermod -a -G microk8s <your-user>
 ```
 
 Now we create a default cluster issuer: `letsencrypt-prod`:
@@ -106,6 +113,16 @@ sudo ufw allow out on cali+
 ```
 
 To check for general configration issues use `microk8s inspect`
+This can give you some easy setup configuration infos and warnings such as:
+
+To enable ip forwarding:
+
+```
+sudo iptables -P FORWARD ACCEPT
+sudo apt-get install iptables-persistent
+```
+
+
 No to konfigure kubeserver access through the host dns, edit `/var/snap/microk8s/current/certs/csr.conf.template`:
 
 ```bash
@@ -179,35 +196,34 @@ fi
 
 You can now use LoadBalancer nodes that distribute the `<VPS-IP>`.
 
-## Step 6: Set Up Cert Manager
+## Some Tips
 
-For easy SSL certificate issuance, we set up microk8s' cert-manager plugin.
+#### Enabling tab completion for microk8s
 
-```bash
-microk8s enable  cert-manager
-```
-
-Configure a simple cluster issuer:
+`vim ~/.bash_aliases`
 
 ```bash
-microk8s kubectl apply -f - <<EOF
----
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
- name: letsencrypt-prod
-spec:
- acme:
-   email: <your-email>
-   server: https://acme-v02.api.letsencrypt.org/directory
-   privateKeySecretRef:
-     name: lets-encrypt-private-key
-   solvers:
-   - http01:
-       ingress:
-         class: public
-EOF
+# add the fllowing
+alias kubectl='microk8s kubectl'
+export LC_ALL=en_US.utf-8
+export LANG=en_US.utf-8
+source /usr/share/bash-completion/bash_completion
+source <(kubectl completion bash)  
 ```
+
+#### Patching External Traffic Policies
+
+```bash
+kubectl patch svc nodeport -p '{"spec":{"externalTrafficPolicy":"Local"}}'
+```
+
+#### Testing the preservation of client IP adresses
+
+```bash
+kubectl expose deployment source-ip-app --name=loadbalancer --port=80 --target-port=8080 --type=LoadBalancer
+```
+
+
 
 ## Conclusion
 
