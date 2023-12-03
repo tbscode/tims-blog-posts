@@ -1,7 +1,7 @@
 ---
 title: "Understanding Solid Authentication"
 description: "Exploring the workings of OpenID Connect, the Solid Community Server implementation, and reverse-engineering client authentication with Python requests."
-date: "2023-09-21T16:56:47+06:00"
+date: "2023-12-05T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
