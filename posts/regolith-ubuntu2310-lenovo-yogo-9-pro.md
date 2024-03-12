@@ -16,6 +16,14 @@ This blog intends to report how I got things set up & the open issues I still ha
 
 > Don't hesitate to contact me if you have possible solutions or questions regarding my setup, cheers :)
 
+This is the labtop in question: https://geizhals.de/lenovo-yoga-pro-7-14aph8-storm-grey-82y80020ge-a3000891.html?hloc=at&hloc=de
+
+- 14.5", 2560x1600 (WQXGA), 16:10, 208ppi, 90Hz, non-glare (matt), IPS, 350cd/​m², Blaulichtfilter, Dolby Vision, 1.500:1, 100% sRGB 
+- AMD Ryzen 7 7840HS, 8C/16T, 3.80-5.10GHz, 16MB+8MB Cache, 35W TDP, 54W cTDP, Codename "Phoenix" (Zen 4, TSMC 4nm) 
+- AMD Radeon 780M (iGPU), 12CU/768SP, 2.70GHz, Architektur "RDNA 3" (Phoenix) ( no additional GPU )
+- 32GB LPDDR5X-6400 (32GB verlötet, nicht erweiterbar) 
+
+
 ## Open Issues:
 
 1. Keyboard backlight levels not working correctly
@@ -122,3 +130,14 @@ You could also set it up using an i3 config e.g.:
 ```bash
 bindsym $mod+Shift+K exec "DO SOMETHING"
 ```
+
+## Setup screenshot command
+
+`sudo apt install gnome-screenshot`
+
+I like to map it to `Super+Shift+U`
+
+Then setup a keyboard shortcut like this: `gnome-screenshot -acf /tmp/test && cat /tmp/test | xclip -i -selection clipboard -target image/png`
+[as per this stack overflow answer](https://askubuntu.com/questions/1196914/gnome-screenshot-cant-copy-to-clipboard-in-ubuntu-18-04).
+
+I saw only this stategy working, copying directly with `-acf` wan't working for me.
