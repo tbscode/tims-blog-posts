@@ -9,11 +9,11 @@ categories: ["DevOps", "Monitoring"]
 tags: ["Microk8s", "Kubernetes", "Helm", "Uptime-Kuma", "Ingress", "TLS"]
 ---
 
-Uptime-Kuma is a lightweight status and monitoring dashboard that’s perfect for homelabs or lean production clusters. Here’s my minimal, repeatable setup to run it behind an ingress with TLS.
+Uptime-Kuma is a lightweight status and monitoring dashboard suited for homelabs or lean production clusters. Below is a minimal, repeatable setup to run it behind an ingress with TLS.
 
 ### Helm Chart
 
-I use this chart: [dirsigler/uptime-kuma-helm](https://github.com/dirsigler/uptime-kuma-helm).
+A maintained chart is available: [dirsigler/uptime-kuma-helm](https://github.com/dirsigler/uptime-kuma-helm), from [`@dirsigler`](https://github.com/dirsigler/uptime-kuma-helm).
 
 ```bash
 helm repo add uptime-kuma https://helm.irsigler.cloud
@@ -25,9 +25,15 @@ helm upgrade my-uptime-kuma uptime-kuma/uptime-kuma \
   -f values.uptime-kuma.yaml
 ```
 
+### Preview
+
+The following screenshot shows how Uptime-Kuma presents monitoring data for this blog (`blog.t1m.me`).
+
+![Uptime-Kuma dashboard for blog.t1m.me](/static/assets/uptime-kuma-dashboard.png)
+
 ### Example values
 
-Sanitize hosts/secrets for your environment. I run it as a `ClusterIP` behind `nginx` and cert-manager.
+Sanitize hosts/secrets for the target environment. This example runs as a `ClusterIP` behind `nginx` and cert-manager.
 
 ```yaml
 ingress:
@@ -37,7 +43,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     kubernetes.io/ingress.class: public
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://<your-domain>, http://localhost:3000"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://<your-domain>"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
@@ -70,9 +76,9 @@ env:
 
 Notes:
 
-- Keep persistence on; you don’t want to reconfigure monitors after pod restarts.
-- If you use Microk8s, ensure `ingress` and `cert-manager` are enabled and you have a `ClusterIssuer` named `letsencrypt-prod`.
-- The app will be reachable at `https://status.<your-domain>` after DNS is set.
+- Keep persistence on; monitors would otherwise need reconfiguration after pod restarts.
+- On Microk8s, ensure `ingress` and `cert-manager` are enabled and a `ClusterIssuer` named `letsencrypt-prod` exists.
+- The app becomes reachable at `https://status.<your-domain>` after DNS is set.
 
 That’s it—small, stable, and easy to back up. Perfect for keeping a quiet eye on your stack.
 
