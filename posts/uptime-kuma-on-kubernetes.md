@@ -74,6 +74,17 @@ env:
   TZ: Europe/Berlin
 ```
 
+A helper script is available for quick install and values generation:
+
+- Download: `/assets/setup_uptime_kuma.sh`
+- Make executable and run with env vars:
+
+```bash
+curl -fsSL https://blog.t1m.me/assets/setup_uptime_kuma.sh -o setup_uptime_kuma.sh
+chmod +x setup_uptime_kuma.sh
+KUBECONFIG=./kubeconfig.yaml HOST="status.<your-domain>" ./setup_uptime_kuma.sh
+```
+
 Notes:
 
 - Keep persistence on; monitors would otherwise need reconfiguration after pod restarts.
@@ -81,5 +92,19 @@ Notes:
 - The app becomes reachable at `https://status.<your-domain>` after DNS is set.
 
 That’s it—small, stable, and easy to back up. Perfect for keeping a quiet eye on your stack.
+
+
+### Alerts and hardening
+
+- Enable certificate expiration notifications. Even with cert-manager in place (see the Kubernetes setup post), missed renewals often indicate underlying cluster health issues.
+- Configure Twilio SMS alerts to receive notifications when an endpoint goes down and when it recovers. The following screenshot shows a brief incident where a page returned 503 and then back to 200 (minimal downtime during a controlled server migration):
+
+![Incident timeline 503→200](/static/assets/kuma-uptime-incident-503-200.png)
+
+- Enable 2FA for the admin account.
+
+![Uptime-Kuma 2FA](/static/assets/2fa-uptime-kuma.png)
+
+- Set up automated backups. Creating a daily full copy of `/app/data` and keeping a sensible retention schedule is recommended.
 
 
