@@ -76,11 +76,11 @@ env:
 
 A helper script is available for quick install and values generation:
 
-- Download: `/assets/setup_uptime_kuma.sh`
+- Download: [`setup_uptime_kuma.sh`](https://github.com/tbscode/tims-blog-posts/blob/main/assets/setup_uptime_kuma.sh)
 - Make executable and run with env vars:
 
 ```bash
-curl -fsSL https://blog.t1m.me/assets/setup_uptime_kuma.sh -o setup_uptime_kuma.sh
+curl -fsSL https://raw.githubusercontent.com/tbscode/tims-blog-posts/refs/heads/main/assets/setup_uptime_kuma.sh -o setup_uptime_kuma.sh
 chmod +x setup_uptime_kuma.sh
 KUBECONFIG=./kubeconfig.yaml HOST="status.<your-domain>" ./setup_uptime_kuma.sh
 ```
