@@ -2,7 +2,7 @@
 title: "Self-Hosted n8n on Kubernetes (Helm chart)"
 description: "Minimal, repeatable setup to run n8n with TLS behind nginx ingress using the 8gears Helm chart."
 date: "2025-10-08"
-featured: false
+featured: true
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["DevOps", "Automation"]
@@ -186,6 +186,8 @@ The script will:
 - Clean up temporary files
 
 This makes it trivial to migrate workflows between n8n instances or restore from backups. The script handles all the Kubernetes complexity, so you just point it at a folder of JSON files.
+
+> For automatic workflow and credential synchronization to GitHub, see my post on [synchronizing n8n workflows to GitHub](/blog/n8n-auto-saving-workflows-community-edition).
 
 ### Hardening checklist
 

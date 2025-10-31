@@ -1,7 +1,7 @@
 ---
 title: "WordPress on Kubernetes with TrueCharts (short guide)"
 description: "Set up WordPress on a self-hosted Kubernetes cluster using the TrueCharts Helm chart."
-date: "2025-10-01"
+date: "2025-10-03"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"

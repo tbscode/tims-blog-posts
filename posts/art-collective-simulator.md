@@ -2,7 +2,7 @@
 title: "Art Collective Simulator"
 description: "A Game Dev Story–inspired isometric simulation for the Vibrational Network with evolving features from tasks and stats to events and rooms."
 date: "2021-01-15T12:00:00+00:00"
-featured: false
+featured: true
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["Games", "Design", "Development"]
