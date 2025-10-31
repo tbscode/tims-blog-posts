@@ -2,7 +2,7 @@
 title: "Full Setup Guide: Lenovo Yoga 9 Pro with Regolith Linux (Ubuntu 23.10 + i3)"
 description: "A comprehensive setup guide for setting up a Lenovo Yoga 9 Pro with Ubuntu 23.10 and Regolith i3, including resolution and external monitors configuration, and workarounds for common issues."
 date: "2024-02-24T16:56:47+06:00"
-featured: true
+featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["Linux", "Setup Guide"]

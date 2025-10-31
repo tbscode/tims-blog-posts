@@ -1,8 +1,8 @@
 ---
-title: "Self-Hosted Uptime Monitoring on Kubernetes with Uptime-Kuma"
+title: "Uptime Monitoring on Kubernetes by self-hosting Uptime-Kuma"
 description: "Tiny guide to deploy Uptime-Kuma on a self-hosted Kubernetes cluster using a maintained Helm chart."
 date: "2025-10-01"
-featured: false
+featured: true
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["DevOps", "Monitoring"]
