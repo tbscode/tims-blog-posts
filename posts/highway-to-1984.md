@@ -4,6 +4,7 @@ description: "A quote from the Party in George Orwell's 1984. Indicators for inc
 date: "1984-09-21T16:56:47+06:00"
 featured: true
 postOfTheMonth: false
+sitemap: false
 author: "Tim Schupp"
 categories: ["DevOps", "Programming"]
 tags: ["Microk8s", "Kubernetes"]
@@ -101,8 +102,17 @@ This coincides with broader use of Play Integrity, where apps check "installed b
 
 ## `#MSFT-1` Windows Recal + MSA tied TUID
 
-Similar as Google Integriy APIs todo, section to be written...
+Windows 11 develops in a similar way as Android and IOS with their device integrity apis.
+With Win11 TPM 2.0 and Secure Boot are enableed by default and and siginifantly harder up to impossible to circumvent.
+This plus moving windows towards being usable with Microsoft Account, Any attestation, any system callback, anything that leaves a trace really, can easily be linked to your microsoft identity. And even worse with the Mandatory Roll-Out of Windows-Recall, which is supposed to take screenshots every 5 minutes, even apps that try to protect your privacy will be exposed. All Security Prommises microsoft makes are directly hiding a pricacy concession, microsoft also joins the companies normalizing hardware-rooted, cloud tied attestation.
 
+TPM 2.0 + Secure Boot are the default for supported installs, while setup heavily steers you into a Microsoft Account. The TPM isn't "spyware"; it's a secure coprocessor (keys, PCR measurements, sealing, attestation). But combined with Windows' security stack (BitLocker/Device Encryption, VBS/HVCI, Windows Hello) and the cloud defaults (OneDrive/Store/Widgets/Copilot), it makes proving "this exact machine, in this exact state, used by this signed‑in person" easy—when services choose to enforce it. That's great for stopping disk theft and some malware; it's bad for staying low‑friction anonymous. Remote attestation can become a gate: prove genuine Windows and an unmodified boot chain or get blocked, a model already used in enterprise and increasingly mirrored by anti‑cheat/DRM‑like systems. With MSA, devices are registered, encryption keys may be backed up, and telemetry/online features link behavior to account and hardware; Pluton on some CPUs further centralizes the root of trust. You can still go local‑account, trim telemetry, avoid MS services, use a VM, or switch OS—but these are now "advanced user paths," and the trend is to narrow them.
+
+**Tim's Comment**: The mechanisms (TPM, Secure Boot) are genuinely useful for security, but the risk is how they're combined with mandatory online identity, opaque telemetry, and attestation used as an access/lockdown weapon. This shifts power from the device owner to the platform vendor. Remote attestation can become "show me you're running unmodified, approved software or you're out"—already happening in enterprise and anti‑cheat scenarios. The MSA requirement + TPM‑backed identity + telemetry systematicly threaten user anonymity and privacy. As with other surveillance capabilities, we know **existing capabilities WILL be abused**. The trend toward narrowing local‑account and offline paths, while pushing cloud‑first defaults, makes truly anonymous, de‑tethered usage more work than on older Windows—and Microsoft keeps closing workarounds.
+
+#### References:
+
+1. [The Hidden Spy in Windows 11 (TPM Chips)](https://www.youtube.com/watch?v=t1eX_vvAlUc)
 
 ### More to check-out
 
@@ -115,3 +125,5 @@ I strongly encourage everyone to do their own research on the topic, circle back
 2. [Missfits: Enshitification](https://us.macmillan.com/books/9780374619329/enshittification/)
 3. [Manufacturing Consent](https://en.wikipedia.org/wiki/Manufacturing_Consent) A book more relevant then ever. 
 *Quick Call-out: 🔩 you Studien Stiftung Deutschland for discrediting 'Manufactoring Consent' as globally not relevant topic in 2017*
+4. [Consumer Rights](https://consumerrights.wiki/w/Main_Page)
+5. [Flock Safetly Cameras](https://www.youtube.com/watch?v=_a14lplBg2Y)
