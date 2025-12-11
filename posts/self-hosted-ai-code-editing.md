@@ -1,7 +1,7 @@
 ---
 title: "100% Open-Source Self-Hostable AI Code Editing: Codium & Continue.dev"
 description: "A comprehensive guide to setting up fully self-hosted AI code editing with Codium and Continue.dev, keeping your code and AI interactions completely private and under your control."
-date: "2025-01-27T16:56:47+06:00"
+date: "2025-11-27T16:56:47+06:00"
 featured: true
 postOfTheMonth: false
 author: "Tim Schupp"

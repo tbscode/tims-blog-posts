@@ -1,13 +1,13 @@
 ---
 title: "Comparing Agentic Code Editors"
 description: "A comparison of Antigravity, Cursor, Windsurf, and Codium + Continue for agentic coding tasks."
-date: "2025-11-27T10:40:00+01:00"
+date: "2025-12-06T10:40:00+01:00"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["Programming", "AI"]
 tags: ["Antigravity", "Cursor", "Windsurf", "Codium", "Continue", "Agentic"]
-image: "/static/assets/agentic_editors/antigravity_screenshot.png"
+image: "/static/assets/agentic_editors/cover_image_inspired_large.png"
 ---
 
 I have been testing several "Agentic" code editors to understand their current capabilities and limitations. This article compares **Antigravity** (Google), **Cursor** (Anysphere), **Windsurf**, and the open-source combination of **VSCodium + Continue**.
