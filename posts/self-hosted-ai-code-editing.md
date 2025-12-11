@@ -10,6 +10,8 @@ tags: ["AI", "Self-Hosting", "Privacy", "Code Editing", "Codium", "Continue.dev"
 image: "/static/assets/codium_cursor_preview.png"
 ---
 
+Here’s how I keep AI-assisted coding fully under my control: Continue.dev with Codium, pointed at APIs I trust and models I host. Everything stays local or on endpoints I pick - no mistrius data blackholes, no pricy APIs with uncontrolled token usages. Just own hardware and local storage.
+
 ### Setting up the local model
 
 `~/.continue/config.yaml`
@@ -41,8 +43,7 @@ You can even use Google Models outside of Antrigravity:
 
 ### Using self hosted models
 
-There are severl tools you can use here easierst ist propably ollamma, 
-and just using their openai api backend.
+There are several tools you can use here; the easiest is probably Ollama with its OpenAI-compatible backend.
 
 e.g.: start qwen coder:
 
@@ -67,5 +68,5 @@ And now you can edit the code completely privately using a 100% local model.
 
 ### Fixing Python Linting
 
-Microsoft sometimes is a little b**ch thus they block the pylint plugin from working with non official vs-codes.
-So I correcomend to use 'basedpyright', this can be configured to work with codium, and honestly in some aspects is even better than pylint.
+Microsoft sometimes is a little b**ch, they block the pylint plugin from working with non-official VS Codes.
+So I recommend using 'basedpyright'; it works with Codium, and honestly in some aspects is even better than pylint.
