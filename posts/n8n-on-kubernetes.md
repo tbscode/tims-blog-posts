@@ -203,3 +203,12 @@ This makes it trivial to migrate workflows between n8n instances or restore from
 The chart is maintained by the 8gears team and contributors. The repository is here: [`8gears/n8n-helm-chart`](https://github.com/8gears/n8n-helm-chart). They’ve done a great job exposing n8n’s core options (readiness/liveness probes, deployment strategies, webhook and worker modes, and Redis/Valkey integration) in a clean values structure.
 
 That’s it—small, clean, and easy to back up. Perfect fit for a self-hosted automation hub.
+
+### Installing community nodes
+
+Enable them once and you’re done:
+
+1) Set the env var so the UI shows the Community Nodes menu: `N8N_ENABLE_COMMUNITY_NODES=true` (in the chart, add to `extraEnv`).  
+2) Keep a short allowlist if you want: `N8N_COMMUNITY_PACKAGES_ALLOWLIST=["n8n-nodes-<package>"]`.  
+3) Restart the pod, then in n8n go to *Settings → Community nodes → Install*. Paste the package name (e.g., `n8n-nodes-openai`), install, and reload the canvas.  
+4) If your cluster egress is locked down, allow outbound HTTPS to `registry.npmjs.org` so installs don’t hang.
