@@ -188,3 +188,19 @@ kubectl exec -n $NS "$SYNAPSE_POD" -- sh -lc '
 # Copy backup from pod to local machine
 kubectl cp $NS/$SYNAPSE_POD:/tmp/matrix-media-backup.tar.gz ./matrix-media-backup-$(date +%F).tar.gz
 ```
+
+### Use Matrix bot to automate messaging
+
+**1. Login a Matrix user**
+
+```bash
+curl -X POST "<YOUR-MATRIX-SERVER>/_matrix/client/v3/login" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"type\": \"m.login.password\",
+    \"identifier\": { \"type\": \"m.id.user\", \"user\": \"<user-name>\" },
+    \"password\": \"<your-strong-admin-password>\"
+  }" -o login-response.json -w "\nHTTP Status: %{http_code}\n" -s -S
+```
+
+Use the token to (2) list registered users (3) send a message to a registered user.
