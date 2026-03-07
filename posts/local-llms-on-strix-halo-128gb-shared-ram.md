@@ -78,5 +78,21 @@ There are many more tests to be done and likely also performance improvements th
 | **nemotron-3-nano** | 34GB | 👾👾👾👾 | Very Fast | `63.566` |
 | **glm-4.7-flash** | 40GB | 👾👾👾👾 | Slow | `50.098` |
 | **gpt-oss:120b** | 70GB | 👾👾👾👾 | Very Slow | `31.532` |
+| **qwen-3.5:122b** | 81GB | 👾👾👾👾 | Very Slow | `19.158` |
+| **qwen-3.5:9b** | 6.6GB | 👾👾👾👾 | Very Slow | `29.52` |
 
 All these models are usable for smaller and simpler local agentic and coding tasks, involving basic files manipulations and tool calls e.g.: via open-code. I was especially impressed by how well `qwen3-coder-next` performed, and also `nemotron-3-nano` that was incredibly fast and smart for such a small thinking model.
+
+### Testing new qwen-3.5 with increased 94gb vram
+
+Now I've updated the bios to allocate 94GB VRAM to allow larger models to run entirely in VRAM.
+
+<img width="1451" height="234" alt="BIOS VRAM settings for 94GB allocation" src="../assets/strix_halo_increase_94gb_vram.png" />
+
+Here's the active usage with 94GB VRAM allocated:
+
+<img width="1906" height="917" alt="94GB VRAM active usage showing model loaded in VRAM" src="../assets/strix_halo_94gb_vram_active_usage_strix_halo.png" />
+
+With the increased VRAM, I was able to download and run qwen-3.5:95b entirely in VRAM:
+
+<img width="1451" height="917" alt="Downloading qwen-3.5:95b model with Ollama" src="../assets/ollama_downloading_qwen122b.png" />
