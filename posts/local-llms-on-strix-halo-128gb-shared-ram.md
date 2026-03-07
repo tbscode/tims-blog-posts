@@ -1,6 +1,6 @@
 ---
 title: "Local LLMs on Strix Halo 128GB Shared Ram: My Tests"
-description: "Stricks Halo 128GB ram, 100% Local LLM Agents, my tests"
+description: "Strix Halo 128GB RAM, 100% local LLM agents, my tests"
 date: "2026-02-22"
 featured: true
 postOfTheMonth: true
@@ -15,33 +15,33 @@ image: "/static/assets/strix-halo-vram.png"
 LLMs are sometimes stupid, sometimes impressive, often unpredictable and almost never private.
 Bigger models are generally hosted in clouds and proprietary, sometimes you can limit access or censor data presented to model providers but almost never you can restrict access fully or be really sure how and when your data is being used.
 
-These are just some of the reason why you might want to run models locally. But hardware especially graphics cards that can run these models are very pricey and the vram requirement for the more 'mid-range' models just exceeds what is possible with local models.
+These are just some of the reasons why you might want to run models locally. But hardware especially graphics cards that can run these models are very pricey and the vram requirement for the more 'mid-range' models just exceeds what is possible with local models.
 
-For some time Apple had an alternative to expensive graphics cards with their m-chip line-up allowing shared-vram with integrated graphics and cpu, but the prices for higher ram mac configurations are still rediculisly high. 
-But now there is a 'cheaper' option available for consumers. For a [tb-software](https://timschupp.de/) project Itested the highest available 128GB ram configuration of a mini PC with the new strix-halo chip to test it and it's ability for running local LLMs.
+For some time Apple had an alternative to expensive graphics cards with their m-chip lineup allowing shared VRAM with integrated graphics and CPU, but the prices for higher RAM Mac configurations are still ridiculously high. 
+But now there is a 'cheaper' option available for consumers. For a [tb-software](https://timschupp.de/) project I tested the highest available 128GB RAM configuration of a mini PC with the new strix-halo chip to test it and its ability for running local LLMs.
 
-This article reports our early findings and summaries some configuration steps and the measurement setup I used.
-To this point I tested 5 LLMs and more tests are coming. [Alsoie investigated the use and usability of local agents with opencode](toto).
+This article reports our early findings and summarizes some configuration steps and the measurement setup I used.
+To this point I've tested 5 LLMs and more tests are coming. I also investigated the use and usability of local agents with OpenCode in a companion post: [Opencode; Usability with Local LLMs on iGPU w 128GB VRAM](https://blog.t1m.me/blog/opencode-with-local-llms).
 
 ### Setting up ollama with vulkan
 
-Firstly I needed to allocate allocate vram to the internal grafics card, I have not played with the 'dynamic' setting here yet. ( _I have now tried extending vram to 94GB more below_ )
-For these tests I have chosen to set the vram to `65536 Mib` so there is about `67 GB` ram still available to the cpu. We can also test influnce on load speed and inference of varying the available amount of vram in the future.
+First I needed to allocate VRAM to the integrated graphics card, I have not played with the 'dynamic' setting here yet. ( _I have now tried extending VRAM to 94GB more below_ )
+For these tests I have chosen to set the VRAM to `65536 MiB` so there is about `67 GB` RAM still available to the CPU. We can also test influence on load speed and inference of varying the available amount of VRAM in the future.
 
 <img width="1451" height="234" alt="Image" src="/static/assets/strix-halo-vram.png" />
 
-Thests where run on nix-os and to access all the libaries required to use the ollama lulkan backend I had to install some additonal packages and libaries, specificly I added `vulkan-loader` to the nixos system libaries and run ollama with `OLLAMA_LLM_LIBRARY=vulkan OLLAMA_VULKAN=1 ollama serve`. I used `amdgpu_top` to monitor the vram and grafics usage ( _It feels like there are still some performance gains to be made, also vram is not fully utalized espcially be the smaller models_ ).
+Tests were run on NixOS and to access all the libraries required to use the Ollama Vulkan backend I had to install some additional packages and libraries, specifically I added `vulkan-loader` to the NixOS system libraries and ran Ollama with `OLLAMA_LLM_LIBRARY=vulkan OLLAMA_VULKAN=1 ollama serve`. I used `amdgpu_top` to monitor the VRAM and graphics usage ( _It feels like there are still some performance gains to be made, also VRAM is not fully utilized, especially by the smaller models_ ).
 
 ### The Test Setup
 
-To test the LLMs for now I just wantend to know basic results for load speed and completion speeds.
-I've created a simple fork of [ollam benchmark](https://github.com/aidatatools/ollama-benchmark) ( here [my fork without telemetry](https://github.com/tbscode/tims-ollama-bench-fork) ) to measure the results based on an running ollama backend.
+To test the LLMs for now I just wanted to know basic results for load speed and completion speeds.
+I've created a simple fork of [ollama benchmark](https://github.com/aidatatools/ollama-benchmark) ( here [my fork without telemetry](https://github.com/tbscode/tims-ollama-bench-fork) ) to measure the results based on a running Ollama backend.
 
-If you had the exact same hardware, system and configurations, test could be replicated via:
+If you had the exact same hardware, system and configurations, tests could be replicated via:
 
 ```bash
 python3 -m venv venv
-source venv/bin/active
+source venv/bin/activate
 pip install git+https://github.com/tbscode/tims-ollama-bench-fork.git
 tims_llm_benchmark run --custombenchmark=<your-model-config>.yml
 ```
@@ -70,7 +70,7 @@ tims_llm_benchmark run --custombenchmark=model-configs/qwen-3.5-122b.yaml
 ### Test Results
 
 Based on this benchmark and personal prompts and agents tests I've created this table to summarize the results.
-There are many more tests to be done and likely also perforce improvements through improved configuration, these are just my initial findings and a preliminary re-view. *But I can definitely say that there are functional local models out there that can definitely complete simply tasks locally on this hardware!*
+There are many more tests to be done and likely also performance improvements through improved configuration, these are just my initial findings and a preliminary review. *But I can definitely say that there are functional local models out there that can definitely complete simple tasks locally on this hardware!*
 
 | Name | Size (GB) | Quality | Load Speed | Tokens / sec |
 |--|--|--|--|--|
