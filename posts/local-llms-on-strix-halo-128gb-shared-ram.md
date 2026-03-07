@@ -87,12 +87,12 @@ All these models are usable for smaller and simpler local agentic and coding tas
 
 Now I've updated the bios to allocate 94GB VRAM to allow larger models to run entirely in VRAM.
 
-<img width="1451" height="234" alt="BIOS VRAM settings for 94GB allocation" src="../assets/strix_halo_increase_94gb_vram.png" />
+<img width="1451" height="234" alt="BIOS VRAM settings for 94GB allocation" src="/static/assets/strix_halo_increase_94gb_vram.png" />
 
 Here's the active usage with 94GB VRAM allocated:
 
-<img width="1906" height="917" alt="94GB VRAM active usage showing model loaded in VRAM" src="../assets/strix_halo_94gb_vram_active_usage_strix_halo.png" />
+<img width="1906" height="917" alt="94GB VRAM active usage showing model loaded in VRAM" src="/static/assets/strix_halo_94gb_vram_active_usage_strix_halo.png" />
 
 With the increased VRAM, I was able to download and run qwen-3.5:95b entirely in VRAM:
 
-<img width="1451" height="917" alt="Downloading qwen-3.5:95b model with Ollama" src="../assets/ollama_downloading_qwen122b.png" />
+<img width="1451" height="917" alt="Downloading qwen-3.5:95b model with Ollama" src="/static/assets/ollama_downloading_qwen122b.png" />
