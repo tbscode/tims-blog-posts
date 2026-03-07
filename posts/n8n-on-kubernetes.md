@@ -2,7 +2,7 @@
 title: "Self-Hosted n8n on Kubernetes (Helm chart)"
 description: "Minimal, repeatable setup to run n8n with TLS behind nginx ingress using the 8gears Helm chart."
 date: "2025-10-08"
-featured: true
+featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["DevOps", "Automation"]

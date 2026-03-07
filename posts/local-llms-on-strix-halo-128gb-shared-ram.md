@@ -3,7 +3,7 @@ title: "Local LLMs on Strix Halo 128GB Shared Ram: My Tests"
 description: "Stricks Halo 128GB ram, 100% Local LLM Agents, my tests"
 date: "2026-02-22"
 featured: true
-postOfTheMonth: false
+postOfTheMonth: true
 author: "Tim Schupp"
 categories: ["AI", "Hardware"]
 tags: ["LLM", "Ollama", "Benchmark", "AMD"]

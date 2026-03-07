@@ -3,7 +3,7 @@ title: "Msgmate.io Development Update Oct 2023"
 description: "A progress and state update on the development of my msgmate.io plattform"
 date: "2023-10-22T16:56:47+06:00"
 featured: false
-postOfTheMonth: true
+postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["DevelopmentUpdates"]
 tags: ["Msgmateio", "Kubernetes"]
