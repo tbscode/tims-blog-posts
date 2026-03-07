@@ -7,7 +7,7 @@ postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["AI", "Hardware"]
 tags: ["LLM", "Ollama", "Benchmark", "AMD", "LLM-Agents", "Open-Code"]
-image: "/static/assets/ollama-local.png"
+image: "/static/assets/opencode-blog-cover.png"
 ---
 
 [Opencode](https://opencode.ai/) is a pretty cool and neatly composable terminal based llm coding agent.
@@ -44,6 +44,8 @@ e.g.: to test the models from [my latest benchark](https://blog.t1m.me/blog/loca
         "glm-4.7-flash": { "name": "glm-4.7-flash" },
         "gpt-oss:120b": { "name": "gpt-oss:120b" }
 ```
+
+<img width="1906" height="917" alt="OpenCode post starting prompt example" src="../assets/open-code-post-starting-prompt.png" />
 
 ### Usability / Review
 
@@ -133,6 +135,8 @@ Also if you want to use other remove non local providers to test oss models, you
 
 ### Managing a global open-code install via nix
 
+<img width="1906" height="917" alt="OpenCode performing git push" src="../assets/open-code-performing-git-push.png" />
+
 To mange my local open-code installation and configuration I've setup a simple nix flake, in a git sub-module that stores and pulls my open-code configuration and makes it globally available on configuration update.
 
 ```nix
@@ -197,7 +201,7 @@ To mange my local open-code installation and configuration I've setup a simple n
           config = lib.mkIf cfg.enable {
             xdg.configFile."opencode/opencode.json".source = opencodeJsonPath;
           };
-        };
+        }
     in
     {
       nixosModules.default = { ... }: {
@@ -206,6 +210,8 @@ To mange my local open-code installation and configuration I've setup a simple n
       homeManagerModules.default = { ... }: {
         imports = [ commonOptions homeManagerModule ];
       };
-    };
+    }
 }
 ```
+
+<img width="1906" height="917" alt="OpenCode blog section edit example" src="../assets/opencode-blog-section-edit-example.png" />
