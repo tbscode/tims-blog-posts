@@ -1,7 +1,7 @@
 ---
 title: "Opencode; Usability with Local LLMs on iGPU w 128GB vram: My Tests"
 description: "Testing and configuring opencode for usage with local llms"
-date: "2026-02-22"
+date: "2026-03-07"
 featured: true
 postOfTheMonth: false
 author: "Tim Schupp"
@@ -35,9 +35,9 @@ Then start adding your providers, fistly the local llm one, e.g.: you could use 
       },
       "models": { ... }
 ```
-e.g.: to test the models from [my latest benchark](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram) i added. _Ofcourse you will have to pull the models and corretly setup and start the local lmm server first ( check my other post for an example using ollama on vulkan + nix ).
+e.g.: to test the models from [my latest benchark](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram) i added. _Of course you will have to pull the models and corretly setup and start the local lmm server first ( check my other post for an example using ollama on vulkan + nix )._
 
-```bash
+```json
         "qwen3-coder-next": { "name": "qwen3-coder-next" },
         "mdq100/Qwen3-Coder-30B-A3B-Instruct:30b": { "name": "qwen-code-instuct-small"},
         "nemotron-3-nano": { "name": "nemotron-3-nano" },
