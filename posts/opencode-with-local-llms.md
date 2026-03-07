@@ -7,7 +7,7 @@ postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["AI", "Hardware"]
 tags: ["LLM", "Ollama", "Benchmark", "AMD", "LLM-Agents", "Open-Code"]
-image: "/static/assets/strix-halo-vram.png"
+image: "/static/assets/ollama-local.png"
 ---
 
 [Opencode](https://opencode.ai/) is a pretty cool and neatly composable terminal based llm coding agent.
