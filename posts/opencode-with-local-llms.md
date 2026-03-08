@@ -7,8 +7,10 @@ postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["AI", "Hardware"]
 tags: ["LLM", "Ollama", "Benchmark", "AMD", "LLM-Agents", "Open-Code"]
-image: "/static/assets/opencode-blog-cover.png"
+image: "/static/assets/opencode-cover-new.png"
 ---
+
+<img width="1906" height="917" alt="OpenCode blog cover" src="/static/assets/opencode-blog-cover.png" />
 
 [Opencode](https://opencode.ai/) is a pretty cool and neatly composable terminal based llm coding agent.
 For a project at [tb-software](https://timschupp.de/) and also private personal use in general I'm especially interesting in the usage of open-code or similar tools with local llms, hosted on own hardware. See [my article on running and testing local llms on a 128gb strix halo setup here](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram).
