@@ -9,7 +9,6 @@ categories: ["DevOps", "Programming"]
 tags: ["Microk8s", "Kubernetes"]
 ---
 
-> NOTE: There is an [updated version of this post here](https://blog.t1m.me/blog/microk8s-on-vps-v2)
 > Discover the cheapest and easiest way I've found to create personal Kubernetes clusters.
 
 This blog post provides a step-by-step guide to setting up a private Kubernetes cluster on a Virtual Private Server (VPS), with the following features ready and configured:
@@ -24,6 +23,8 @@ The **prerequisites** for this tutorial are: **A VPS with a Public IP**, **A dom
 ## Step 1: Create a base user
 
 Connect to your VPS. In a terminal, create a user and add them to the sudoers.
+
+First change the root user password to something strong `passwd`
 
 ```bash
 adduser <user-name>
@@ -47,6 +48,7 @@ Now we edit the ssh config to require the ssh key, edit `/etc/ssh/sshd_config`
 ```bash
 PasswordAuthentication no # yes before
 PubkeyAuthentication yes # no before
+PermitRootLogin no # Before yes
 ```
 
 Then restart the ssh service `service ssh restart`
@@ -55,34 +57,37 @@ Then restart the ssh service `service ssh restart`
 
 ## Step 3: Set up and enable the firewall
 
-Set up the firewall to allow SSH, HTTP, HTTPS connections and also expose port `16443` which will be used to access the Kubeapi server.
-
-```bash
-ufw allow ssh
-ufw allow http
-ufw allow https
-ufw allow 16443
-ufw enable
-```
-
 Now disconnect from your server and reconnect as the new user:
 
 ```bash
 ssh -i "<private-server-key>" <user-name>@<server-IP>
 ```
 
+Set up the firewall to allow SSH, HTTP, HTTPS connections and also expose port `16443` which will be used to access the Kubeapi server.
+
+```bash
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw allow 16443
+sudo ufw enable
+```
+
 ## Step 4: Install and set up microk8s
 
 ```bash
-sudo snap install microk8s --classic --channel=1.28
+sudo snap install microk8s --classic --channel=1.35 # Check for current version!
 sudo microk8s enable rbac
+sudo microk8s enable ingress 
+sudo microk8s enable dns 
+sudo microk8s enable hostpath-storage
+sudo microk8s enable cert-manager
 sudo microk8s start
-microk8s enable ingress dns hostpath-storage cert-manager
 ```
 
 If you want to use the current user to manage microk8s; this is not recomended for production clusters
 
-```
+```bash
 sudo usermod -a -G microk8s <your-user>
 ```
 
@@ -104,9 +109,12 @@ spec:
    solvers:
    - http01:
        ingress:
-         class: public
+         class: trafiek
 EOF
 ```
+
+> Note that compared to the last guide we are using 'trafiek' as default ingress provider this is due to [TODO being deprivated](...)
+> See ... for more instructions on how to migrate from the nginx ingress
 
 We also need to enable some additional rules for the firewall ([see this github comment](https://github.com/canonical/microk8s/issues/2418#issuecomment-877350375)):
 
@@ -161,45 +169,47 @@ Now you can connect to the Kubernetes cluster from your local machine:
 KUBECONFIG="./kubeconfig.yaml" kubectl get pods --all-namespaces
 ```
 
-## Step 5: Setting Up MetalLB
-
-First, prepare `<your-domain>`. 
-Create a specific or one wildcard DNS entry:
+## Step 5 (optional) setup tailscale
 
 ```bash
-<your-domain> -> <vps-ip>
-*.<your-domain> -> <vps-ip>
+curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up --auth-key=<your-tailscale-auth-key>
 ```
 
-Enable `metallb` via `microk8s enable metallb:<your-ip>-<your-ip>`.
-
-To make `metallb` work correctly, apply the patch described in [this GitHub comment](https://github.com/canonical/microk8s/issues/824#issuecomment-1003284063).
-
+2. Create a tailscale service for that cluster
+3. Serve the new kubernetes node
 
 ```bash
-#!/bin/sh
-
-command -v kubectl > /dev/null 2>&1 && KUBECTL=kubectl
-command -v microk8s.kubectl > /dev/null 2>&1 && KUBECTL=microk8s.kubectl
-
-INGTMPFILE=$(mktemp -t ingress_daemonset.XXXXXXXX)
-
-trap "rm -f ${INGTMPFILE}" 0 1 2 3
-
-${KUBECTL} -n ingress get daemonset nginx-ingress-microk8s-controller -o yaml | \
-    sed -e 's|- --publish-status-address=.*|- --publish-service=$(POD_NAMESPACE)/ingress|' > ${INGTMPFILE}
-
-${KUBECTL} diff -f ${INGTMPFILE}
-if [ $? -eq 0 ]; then
-    echo "No changes need to be made"
-else
-    ${KUBECTL} apply -f ${INGTMPFILE}
-fi
+sudo tailscale serve --bg --service=svc:<your-service-name> --tcp 16433 tcp://127.0.0.1:16433
+Serve started and running in the background.
+To disable the proxy, run: tailscale serve --service=svc:<your-service-name> --tcp=16433 off
+To remove config for the service, run: tailscale serve clear svc:<your-service-name>
 ```
 
-You can now use LoadBalancer nodes that distribute the `<VPS-IP>`.
+4. Add the tailscale service IP also to `/var/snap/microk8s/current/certs/csr.conf.template` ( & `sudo microk8s refresh-certs --cert server.crt` )
+5. (optinal) close the kubernetes port `ufw block 16433`
 
 ## Some Tips
+
+### Chore: Check micok8s certificate expiry!
+
+```bash
+sudo microk8s refresh-certs -c
+```
+bad example:
+
+```bash
+sudo microk8s refresh-certs -c
+The CA certificate will expire in 2859 days.
+The server certificate will expire in -19 days.
+The front proxy client certificate will expire in -19 days.
+```
+
+refresh them:
+
+```bash
+sudo microk8s refresh-certs -e server.crt
+sudo microk8s refresh-certs -e front-proxy-client.crt
+```
 
 #### Enabling tab completion for microk8s
 
