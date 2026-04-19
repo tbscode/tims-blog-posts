@@ -1,7 +1,7 @@
 ---
-title: "Setting up a Private Kubernetes Cluster on Your Own VPS Using Microk8s"
-description: "A step-by-step guide to setting up a fully configurable private Kubernetes cluster"
-date: "2023-09-21T16:56:47+06:00"
+title: "Microk8s; self host Kubernetes on the edge"
+description: "Setup a Microk8s node on only VPS (updated)"
+date: "2026-04-19T16:56:47+06:00"
 featured: true
 postOfTheMonth: false
 author: "Tim Schupp"
@@ -77,7 +77,7 @@ sudo ufw enable
 
 ```bash
 sudo snap install microk8s --classic --channel=1.35 # Check for current version!
-sudo microk8s enable rbac
+sudo microk8s enable rbac # optinal might influence some following steps
 sudo microk8s enable ingress 
 sudo microk8s enable dns 
 sudo microk8s enable hostpath-storage
@@ -113,8 +113,7 @@ spec:
 EOF
 ```
 
-> Note that compared to the last guide we are using 'trafiek' as default ingress provider this is due to [TODO being deprivated](...)
-> See ... for more instructions on how to migrate from the nginx ingress
+> Note that compared to the last guide we are using 'trafiek' as default ingress provider
 
 We also need to enable some additional rules for the firewall ([see this github comment](https://github.com/canonical/microk8s/issues/2418#issuecomment-877350375)):
 
