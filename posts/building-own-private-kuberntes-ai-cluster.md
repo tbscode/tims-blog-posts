@@ -9,82 +9,81 @@ categories: ["DevOps", "AI"]
 tags: ["Kubernetes", "k3s", "Ollama", "LiteLLM", "Self-Hosting", "LLM"]
 ---
 
-## Building a private LLM Cluster
+## Building a private LLM cluster
 
-This post will discuss my hands-on experiment on building a local self managed AI cluster at a reasonable pricepoint for AI/LLM usage at-home.
+This post covers my hands-on experiment of building a local, self-managed AI cluster at a reasonable price point for at-home AI/LLM usage.
 
-### Intro 
+### Intro
 
-I like using LLM and exploring their capabilities; 
+I like using LLMs and exploring their capabilities;
 I'm not very fond of the direction the industry is taking.
 
 But I don't think the development in the 'AI/LLM' space will be halted,
-I do though think that there is a direction that is better for society overall.
+although I do think there is a direction that is better for society overall.
 
 That is the future where good small and performant AI models are available for everyone to host themselves on their own compute.
 Keeping all the data private and allowing for much better encapsulation and sandboxing of LLM workloads.
 
-### Considerations Building an AI-Cluster 
+### Considerations for building an AI cluster
 
-Firstly one needs hardware, [as seen in my initial OS LLM tests](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram) I have access to a basic bosgame mini PC with the new Ryzen AI 395 Chip; after my initial tests and considering current RAM rarety and prices I've extended my compute my another one of these bostgame mini PC's. This also allows me to test and use a more complex local multinode kubernetes set-up.
+First, we need hardware. [As seen in my initial OS LLM tests](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram), I have access to a basic Bosgame mini PC with the new Ryzen AI 395 chip. After those initial tests, and considering current RAM rarity and prices, I extended my setup with another Bosgame mini PC. This also allows me to test and use a more complex local multi-node Kubernetes setup.
 
 Thus for this article we will use 2x AMD Strix Halo 128GB RAM mini PCs; 
-we will allocate both to have 94GB VRAM in bios; and the remaining RAM we will leave for backend and kubernetes resources and other services.
+we will allocate both to have 94GB VRAM in BIOS; and we will leave the remaining RAM for backend and Kubernetes resources and other services.
 
-Since the set-up gets more complex I prefere to avoid docker compos only and choose an actual orchestration tool that I can also manage from outside through an API; The choice for me is obviously kubernetes; and for my system choice and configuration management I opted to use k3s, [instead of my usual microk8s](https://blog.t1m.me/blog/microk8s-on-vps-v2).
+Since the setup gets more complex, I prefer not to rely on Docker Compose alone and instead choose an orchestration tool that I can also manage externally through an API. For me, that choice is Kubernetes; and for system configuration management I opted to use k3s, [instead of my usual microk8s](https://blog.t1m.me/blog/microk8s-on-vps-v2).
 
 Now we have solutions for Hardware :check: and for Clustering software :check:.
 Both of the nodes currently run in a home-subnetwork with their own router :check:.
-But as I plan to setup a multi-region cluster in the future we already extend our setup to work across-networks, and across LAN / WLAN.
+But since I plan to set up a multi-region cluster in the future, I already extend this setup to work across networks and across LAN/WLAN.
 
-For that we will use tailscale in this setup; 
-I'm also planning to build a more static setup that will work with wireguard only in the future; 
+For that, we will use Tailscale in this setup;
+I'm also planning to build a more static setup that will work with WireGuard only in the future;
 but for now we choose convenience.
 
-Still there are are more missing parts:
+Still, there are more missing parts:
 1. multi node LLM backend and orchestration
 2. load balancing and deployment
 
 So for 1. I'll choose a multi-helm chart ollama install, the initial aim is to just have two nodes that have the same models available and that can be load balanced between.
-For 2. I'll choose [lite-llm](https://www.litellm.ai/) as its fairly easy to configure, support api authorization and the openaiapi schema;
+For 2. I'll choose [LiteLLM](https://www.litellm.ai/) as it's fairly easy to configure, supports API authorization, and supports the OpenAI API schema;
 and has a bunch of handy load balancing and routing features.
 
 ### Experiment Setup
 
-For easy configuration and management of both nodes I've connected both to KVMs, I can control, observe and manage both nodes simply from my laptop; this was very important as neither do I have enough screens and keyboard nor would I want to manually setup all nodes.
+For easy configuration and management of both nodes, I've connected both to KVMs. I can control, observe, and manage both nodes simply from my laptop; this is important as I do not have enough screens and keyboards, and I also don't want to manually set up all nodes.
 
-Here a picture of the wiring; I've also configured a simple [hyprland](https://hypr.land/) setup with screen mirroring at my display-resolution to allow me to easily view the screen on KVM and another monitor.
-
-TODO: PICTURE: Real live KVM connection setup
+Here is a picture of the wiring; I've also configured a simple [hyprland](https://hypr.land/) setup with screen mirroring at my display resolution to allow me to easily view the screen on KVM and another monitor.
 
 ### System Set-Up
 
-To configure and manage the cluster I want to avoid extensive manual setup, while I want the setup to be repeatable and orchestratable from outside.
-Thus I choose to install NixOS on both clusters; in my nix os setup I can easily setup ssh access keys, my tailnet and everything else in a central deterministic configuration.
+To configure and manage the cluster, I want to avoid extensive manual setup while still keeping the setup repeatable and orchestratable from outside.
+Thus I chose to install NixOS on both nodes; in my NixOS setup I can easily set up SSH access keys, my tailnet, and everything else in a central deterministic configuration.
 
 Notably I ensure each system runs
 
 - `NixOS`, `amdgpu`, `k3s` ( see below )
 
-And ofcourse all required basic system tooling:
+And of course all required basic system tooling:
 
 - `git`, `vim`, `k9s`, `kubectl`, `helm` etc...
 
 Also I've configured basic SSH keys for access to my nodes from inside my tailscale network.
-Similarly I've created a setup that lets me pre-define some host per-system, this will be important later when we optain DNS-1 certificates to resolve e.g.: our litellm dashboard through our tailnet.
+Similarly, I've created a setup that lets me pre-define hosts per system. This will be important later when we obtain DNS-01 certificates to resolve, for example, our LiteLLM dashboard through our tailnet.
 
 ### K3s Cluster Set-Up
 
-In networking I choose to also route cluster traffic over the tailnet to allow me to have mini PC connected via LAN & WLAN, 
+In networking, I chose to route cluster traffic over the tailnet to allow me to have mini PCs connected via LAN and WLAN,
 to be able to move them across location and use them across networks in the future.
 
-I simply configured one cluster node to be a k3 agent and the other the server.
+I configured one cluster node to be the k3s agent and the other to be the server.
 As said I've opted to connect over the tailnet directly, the cluster configuration is managed directly through nix;
 this generally equates to roughly this k3s command:
 
 ```bash
 TOKEN="$(openssl rand -hex 32)"
-sudo echo $TOKE > /etc/secrets/k3s/token
+sudo install -d -m 700 /etc/secrets/k3s
+echo "$TOKEN" | sudo tee /etc/secrets/k3s/token >/dev/null
 k3s server \
   --cluster-init \
   --token-file "/etc/secrets/k3s/token" \
@@ -93,7 +92,7 @@ k3s server \
   --flannel-iface "tailscale0"
 
 k3s agent \
-  --server "https://node-b:6443" \
+  --server "https://node-a:6443" \
   --token-file "/etc/secrets/k3s/token" \
   --flannel-iface "tailscale0"
 ```
@@ -101,14 +100,15 @@ k3s agent \
 Wait for the services to become available and retrieve the `kubeconfig.yaml` from the main k8s node.
 
 ```bash
-sudo cat 
+sudo cp /etc/rancher/k3s/k3s.yaml ./kubeconfig.yaml
+sudo chown "$USER":"$USER" ./kubeconfig.yaml
 ```
 
-### Setting-up DNS-1 challenges and certificate issuing behind NAT
+### Setting up DNS-01 challenges and certificate issuing behind NAT
 
 > Note: this part will differ based on your DNS provider
 
-To access litellms api in browser conveniently we want to have a real certificate!
+To access the LiteLLM API in the browser conveniently, we want to have a real certificate!
 
 ```bash
 kubectl create namespace cert-manager
@@ -136,7 +136,7 @@ helm upgrade --install cert-manager-webhook-ionos \
   --namespace cert-manager
 ```
 
-Create api secret `ionos-secret.yaml`
+Create API secret `ionos-secret.yaml`
 
 ```bash
 kubectl apply -f - <<'EOF'
@@ -148,7 +148,7 @@ metadata:
 type: Opaque
 stringData:
   IONOS_PUBLIC_PREFIX: "<YOUR DNS PROVIDER KEY PREFIX>"
-  IONOS_SECRET: "<YOUR DNS PROVIDE KEY>"
+  IONOS_SECRET: "<YOUR DNS PROVIDER KEY>"
 EOF
 ```
 
@@ -186,10 +186,10 @@ EOF
 
 First we need to teach our cluster to work with our integrated graphics, then we can install ollama with vulkan enabled and run llms.
 
-#### Setup k3s amd rocm resources
+#### Set up k3s AMD ROCm resources
 
-Now we have two devices with amd integrated GPU and kubernetes installed.
-But we can see that the kubernetes clusters don't yet have amd gpu listed as resource / nodes:
+Now we have two devices with AMD integrated GPUs and Kubernetes installed.
+But we can see that the Kubernetes cluster doesn't yet have AMD GPU resources listed on nodes:
 
 ```bash
 kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.allocatable.amd\.com/gpu}{"\n"}{end}'
@@ -203,7 +203,7 @@ helm repo add rocm https://rocm.github.io/k8s-device-plugin/
 helm repo update
 ```
 
-Now we can install the rocm gpu annotations:
+Now we can install the ROCm GPU plugin:
 
 ```bash
 helm upgrade --install amd-gpu rocm/amd-gpu \
@@ -216,9 +216,9 @@ Now we can see the gpus listed:
 kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.allocatable.amd\.com/gpu}{"\n"}{end}'
 ```
 
-#### Setup Ollama helm chart
+#### Set up Ollama Helm chart
 
-I opted to use [this helm chart](https://helm.otwld.com/) add the helm chart:
+I opted to use [this Helm chart](https://helm.otwld.com/). Add the Helm chart:
 
 ```bash
 helm repo add otwld https://helm.otwld.com/
@@ -226,7 +226,7 @@ helm repo update
 helm search repo otwld/ollama --versions
 ```
 
-We create some basic values that allow us to replicate the set-up 1to1 on our other node:
+We create some basic values that allow us to replicate the setup 1:1 on our other node:
 
 ```yaml
 fullnameOverride: ollama
@@ -284,7 +284,7 @@ tests:
   enabled: true
 ```
 
-Note that we apply this values twice with a very minimal modification:
+Note that we apply these values twice with a minimal modification:
 
 ```yaml
 nodeSelector:
@@ -298,15 +298,15 @@ nodeSelector:
   kubernetes.io/hostname: node-b
 ```
 
-This ensures we have identical ollama instances running on both hosts,
-but this also means that we always need to make sure both ollama instances node-states are synced.
+This ensures we have identical Ollama instances running on both hosts,
+but this also means that we always need to make sure both Ollama instance node states are synced.
 
-### Lite-LLM Load Balancing And Routing Set-Up
+### LiteLLM load balancing and routing setup
 
-I choose to use [this helm chart](https://github.com/BerriAI/litellm/pkgs/container/litellm-helm) as a base setup for lite-llm.
+I chose to use [this Helm chart](https://github.com/BerriAI/litellm/pkgs/container/litellm-helm) as a base setup for LiteLLM.
 
-We want our traffic to be routed based on system usage i.e.: when one mini PC is under NPU load it would receive less traffic.
-Optimally we also want the api to block traffic if system is under so much load that the experience would be too bad ( more on that later ).
+We want our traffic to be routed based on system usage, i.e. when one mini PC is under NPU load it should receive less traffic.
+Optimally we also want the API to block traffic if the system is under so much load that the experience would be too bad (more on that later).
 
 Setup basic chart values:
 
@@ -349,7 +349,7 @@ resources:
     memory: 4Gi
 ```
 
-Now since we have setup cluster initial DNS-1 challenges we can also instead request a official lets encrypt certificate via:
+Now, since we have set up initial cluster DNS-01 challenges, we can request an official Let's Encrypt certificate via:
 
 ```yaml
 ingress:
@@ -364,10 +364,10 @@ ingress:
           pathType: Prefix
 ```
 
-This will make it a-lot more easy to access our litellm ui through the browser as it won't complain about ssl and self signed certificates.
-But note you still need to register `<your-domain>` in your own `/etc/hosts` as we did NOT create a public DNS entry. ( shout-out to @JannisT for this setup suggestion )
+This will make it much easier to access our LiteLLM UI through the browser as it won't complain about SSL and self-signed certificates.
+But note you still need to register `<your-domain>` in your own `/etc/hosts` as we did NOT create a public DNS entry. (Shout-out to JannisT for this setup suggestion.)
 
-Then start admin your models, depending on node setup you need to register model endpoints for me it's one per-cluster node so 2.
+Then start by adding your models. Depending on node setup, you need to register model endpoints; for me it's one per cluster node, so two.
 We choose to throttle requests depending on model size, this configuration will be further adjusted and tested in future blog posts.
 
 ```yaml
@@ -387,8 +387,8 @@ proxy_config:
       rpm: 60
 ```
 
-Now finally we also want to configure the router set-up,
-I opt to just generate a general `PROXY_MASTER_KEY` instead of individual keys per-endpoint, just for benchmarking now.
+Now finally we also want to configure the router setup.
+I opted to generate a general `PROXY_MASTER_KEY` instead of individual keys per endpoint, just for benchmarking for now.
 
 ```yaml
   router_settings:
@@ -421,14 +421,14 @@ kubectl --kubeconfig "kubeconfig.yaml" -n ollama get secret litellm-ollama-maste
 
 ### Benchmark
 
-Firstly compared [to the last benchmark](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram) I wanted to extend the test range, specifically im interested to also find out:
+Compared [to the last benchmark](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram), I wanted to extend the test range. Specifically, I'm interested in finding out:
 
-- TTFT time to first token; and it's 
+- TTFT (time to first token); and
 - TTFT dependency on context length
 
-To reset the tests I always ensure that all models are killed and full unloaded and I restart and reset the ollama containers every time: `./scripts/kill_all_running_completions.sh --force-restart'` wraps some kubernetes exec command into a simple script that can be hooked into [my update ollama benchmark](https://github.com/tbscode/tims-ollama-bench-fork). Also I've re-factored the benchmark to also work in 'api only' mode such that I can also compare my results to the performance of know existing LLM hosters ( like e.g.: openai ).
+To reset the tests, I always ensure that all models are killed and fully unloaded, and I restart the Ollama containers every time. `./scripts/kill_all_running_completions.sh --force-restart` wraps a Kubernetes exec command into a simple script that can be hooked into [my updated Ollama benchmark](https://github.com/tbscode/tims-ollama-bench-fork). I also refactored the benchmark to work in 'API only' mode so I can compare my results with known existing LLM hosters (for example OpenAI).
 
-*Also I observed that it was very important to preload the ollama model, cause the TTFT is very significantly reduced if the model is already loaded into memory*. After observing this I had to re-run all tests cause the initial to TTFT speeds would significantly drag down the overall average.
+*I also observed that it is very important to preload the Ollama model, because TTFT is significantly reduced when the model is already loaded into memory.* After observing this, I had to re-run all tests because the initial TTFT values would significantly drag down the overall average.
 
 ```bash
 LITELLM_KEY='<YOUR LITELLM API KEY>' \
@@ -440,7 +440,7 @@ API_PRIME_REQUESTS=2 \
 
 #### Benchmark Results 1: Model Comparison
 
-First edit of this article I often to test the following models:
+In the first version of this article, I tested the following models:
 
 - `deepseek-r1:1.5b`
 - `deepseek-r1:14b`
@@ -457,7 +457,7 @@ First edit of this article I often to test the following models:
 - extra: `gpt-5.4-nano`
 - extra: `gpt-5.5`
 
-mainly due to already having spent extended time on setting up the cluster + benchmarking and also being rate limited by ollama for model downloads after some time...
+Mainly due to already having spent extended time setting up the cluster and benchmarking, and also being rate-limited by Ollama for model downloads after some time...
 
 > Actually I re-ran the benchmark with updated settings, see further below for improved results
 
@@ -500,12 +500,6 @@ mainly due to already having spent extended time on setting up the cluster + ben
 | _extra: `gpt-5.5`_ | _675.8 / 56.38_ | _1736.0 / 68.90_ | _1401.5 / 27.76_ | _2199.7 / 129.05_ | _1917.5 / 131.38_ | _2326.1 / 140.26_ | _3584.2 / 61.83_ | _2417.5 / 106.07_ |
 
 Legend: each context cell is `TTFT(ms) / tokens_per_second`.
-
-
-That must be it for now, the article is way too long already.
-I'm starting to actively use my own hosted models for different things and will report back further in the future.
-
-Cheers Tim
 
 
 #### Blog Addition Benchmark Re-Runs
@@ -574,3 +568,8 @@ Cheers Tim
 | `nemotron-cascade-2:30b` | 978.2 / 63.84 | 1539.3 / 60.44 | 1097.1 / 67.42 | 1798.6 / 56.09 | 2928.9 / 62.82 | 5282.0 / 54.56 | 7328.9 / 51.01 | 13637.7 / 52.39 |
 | `qwen3.6:27b` | 3537.2 / 10.85 | 5509.0 / 10.56 | 5746.9 / 10.68 | 11172.7 / 10.51 | 20261.7 / 10.68 | 36068.3 / 10.29 | 51735.6 / 10.32 | 94678.5 / 9.98 |
 | `qwen3.6:35b` | 1343.6 / 44.83 | 2194.7 / 39.74 | 1585.0 / 44.90 | 3080.7 / 39.62 | 5332.7 / 42.15 | 9675.2 / 39.09 | 13807.2 / 41.01 | 26637.5 / 37.21 |
+
+That must be it for now, the article is way too long already.
+I'm starting to actively use my own hosted models for different things and will report back further in the future.
+
+Cheers Tim

@@ -77,11 +77,12 @@ sudo ufw enable
 
 ```bash
 sudo snap install microk8s --classic --channel=1.35 # Check for current version!
-sudo microk8s enable rbac # optinal might influence some following steps
+# sudo microk8s enable rbac (optional) for more fine-grained access control, might influence some following steps
 sudo microk8s enable ingress 
 sudo microk8s enable dns 
 sudo microk8s enable hostpath-storage
 sudo microk8s enable cert-manager
+sudo microk8s enable metrics-server
 sudo microk8s start
 ```
 
