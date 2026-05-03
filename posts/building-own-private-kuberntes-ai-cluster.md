@@ -570,11 +570,12 @@ Legend: each context cell is `TTFT(ms) / tokens_per_second`.
 | `qwen3.6:35b` | 1343.6 / 44.83 | 2194.7 / 39.74 | 1585.0 / 44.90 | 3080.7 / 39.62 | 5332.7 / 42.15 | 9675.2 / 39.09 | 13807.2 / 41.01 | 26637.5 / 37.21 |
 
 
-> After using some off the OSS LLMs for my workflows I realized:
-> Maybe my context length test is wrong: Cause in normal chat session you continue with the exact previous context.
-> In normal usage I experienced TTFT much lower than what I was seeing in my benchmarking.
-> So I re-wrote the context size test, to actually emulate a 'continuing' session.
-> But then I also realized that cache-re-use is only possible if the same request gets routed to the same node.
+After using some off the OSS LLMs for my workflows I realized:
+Maybe my context length test is wrong: Cause in normal chat session you continue with the exact previous context.
+In normal usage I experienced TTFT much lower than what I was seeing in my benchmarking.
+So I re-wrote the context size test, to actually emulate a 'continuing' session.
+But then I also realized that cache-re-use is only possible if the same request gets routed to the same node,
+_so anyways even after these changes the inital settings performed best_, I'll test further vairiation in future experiments.
 
 #### Re-Run Re-using old context on long context re-runs
 
@@ -617,26 +618,26 @@ Legend: each context cell is `TTFT(ms) / tokens_per_second`.
 
 This table compares TTFT (ms) only across context sizes for `gemma4-*`, `nemotron-cascade-*`, and `qwen3-*` over the different benchmark settings.
 
-| Setting | Parameters / benchmark behavior | Model | 256 | 420 | 689 | 1131 | 1855 | 3043 | 4993 | 8192 |
+| Setting [[fullscreen]] | Parameters / benchmark behavior | Model | 256 | 420 | 689 | 1131 | 1855 | 3043 | 4993 | 8192 |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | **A) Initial benchmark run** | **Pre re-run baseline from first matrix (no explicit env overrides listed in that section)** | **(divider)** | - | - | - | - | - | - | - | - |
-| A) Initial benchmark run | baseline | `gemma4-31b` | 4276.4 | 6296.4 | 6747.6 | 11411.5 | 19858.7 | 40756.8 | 136644.3 | 412691.0 |
-| A) Initial benchmark run | baseline | `gemma4:26b` | 1539.1 | 2353.9 | 1706.6 | 3227.9 | 4622.3 | 9168.0 | 16423.8 | 36809.2 |
-| A) Initial benchmark run | baseline | `gemma4:e4b` | 7438.0 | 18421.3 | 12118.5 | 31385.4 | 33828.8 | 91792.6 | 119861.2 | 359684.5 |
+| A) Initial benchmark run | baseline | `gemma4-31b` | **4276.4** | 6296.4 | 6747.6 | **11411.5** | **19858.7** | 40756.8 | 136644.3 | 412691.0 |
+| A) Initial benchmark run | baseline | `gemma4:26b` | 1539.1 | 2353.9 | **1706.6** | 3227.9 | **4622.3** | 9168.0 | **16423.8** | 36809.2 |
+| A) Initial benchmark run | baseline | `gemma4:e4b` | **7438.0** | **18421.3** | **12118.5** | **31385.4** | **33828.8** | 91792.6 | **119861.2** | **359684.5** |
 | A) Initial benchmark run | baseline | `nemotron-cascade-2:30b` | 1097.9 | 1696.6 | 1098.9 | 1977.4 | 3135.1 | 5473.3 | 7581.8 | 13900.1 |
-| A) Initial benchmark run | baseline | `qwen3.6:27b` | 3516.2 | 5487.2 | 5691.8 | 11068.7 | 20218.5 | 36026.7 | 51709.2 | 94600.6 |
-| A) Initial benchmark run | baseline | `qwen3.6:35b` | 1555.5 | 1759.9 | 1760.5 | 3028.3 | 5332.8 | 9476.1 | 13865.3 | 25481.7 |
+| A) Initial benchmark run | baseline | `qwen3.6:27b` | **3516.2** | **5487.2** | **5691.8** | **11068.7** | **20218.5** | **36026.7** | **51709.2** | **94600.6** |
+| A) Initial benchmark run | baseline | `qwen3.6:35b` | 1555.5 | **1759.9** | 1760.5 | **3028.3** | 5332.8 | **9476.1** | 13865.3 | **25481.7** |
 | **B) Re-run with KV cache = f16** | **`OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=f16`, `OLLAMA_CONTEXT_LENGTH=32768`, `OLLAMA_KEEP_ALIVE=1h`, `OLLAMA_NUM_PARALLEL=1`, `OLLAMA_MAX_LOADED_MODELS=1`** | **(divider)** | - | - | - | - | - | - | - | - |
-| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4-31b` | 4397.6 | 6220.6 | 6652.5 | 11416.4 | 20962.1 | 40675.2 | 135690.2 | 411124.6 |
-| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4:26b` | 1784.3 | 1912.4 | 2002.9 | 2857.8 | 5111.5 | 8601.7 | 16929.3 | 35758.9 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4-31b` | 4397.6 | **6220.6** | **6652.5** | 11416.4 | 20962.1 | **40675.2** | 135690.2 | **411124.6** |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4:26b` | 1784.3 | **1912.4** | 2002.9 | **2857.8** | 5111.5 | **8601.7** | 16929.3 | **35758.9** |
 | B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4:e4b` | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
-| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `nemotron-cascade-2:30b` | 978.2 | 1539.3 | 1097.1 | 1798.6 | 2928.9 | 5282.0 | 7328.9 | 13637.7 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `nemotron-cascade-2:30b` | **978.2** | **1539.3** | **1097.1** | **1798.6** | **2928.9** | **5282.0** | **7328.9** | **13637.7** |
 | B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `qwen3.6:27b` | 3537.2 | 5509.0 | 5746.9 | 11172.7 | 20261.7 | 36068.3 | 51735.6 | 94678.5 |
-| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `qwen3.6:35b` | 1343.6 | 2194.7 | 1585.0 | 3080.7 | 5332.7 | 9675.2 | 13807.2 | 26637.5 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `qwen3.6:35b` | **1343.6** | 2194.7 | **1585.0** | 3080.7 | **5332.7** | 9675.2 | **13807.2** | 26637.5 |
 | **C) Re-run with context re-use in benchmark flow** | **Benchmark changed to emulate continuing sessions (context re-use); same model family scope** | **(divider)** | - | - | - | - | - | - | - | - |
-| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4-31b` | 4578.4 | 6658.9 | 7037.5 | 11862.8 | 20464.6 | 41579.3 | 124721.5 | 561515.7 |
-| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4:26b` | 1495.1 | 2438.6 | 1826.3 | 3453.3 | 4894.9 | 9459.4 | 16942.0 | 38030.7 |
-| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4:e4b` | 7550.6 | 19217.4 | 12559.8 | 32229.7 | 34552.3 | 91452.3 | 120309.8 | 370979.0 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4-31b` | 4578.4 | 6658.9 | 7037.5 | 11862.8 | 20464.6 | 41579.3 | **124721.5** | 561515.7 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4:26b` | **1495.1** | 2438.6 | 1826.3 | 3453.3 | 4894.9 | 9459.4 | 16942.0 | 38030.7 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4:e4b` | 7550.6 | 19217.4 | 12559.8 | 32229.7 | 34552.3 | **91452.3** | 120309.8 | 370979.0 |
 | C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `nemotron-cascade-2:30b` | 1043.1 | 1757.6 | 1249.8 | 2713.2 | 3504.5 | 8272.6 | 7918.5 | 15585.7 |
 | C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `qwen3.6:27b` | 3816.0 | 5900.3 | 6129.2 | 11886.5 | 20982.5 | 37356.6 | 53244.9 | 98825.9 |
 | C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `qwen3.6:35b` | 1856.4 | 1907.7 | 2123.4 | 3325.6 | 6113.1 | 10343.4 | 15384.7 | 26747.8 |
