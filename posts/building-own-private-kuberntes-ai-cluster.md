@@ -29,24 +29,24 @@ Keeping all the data private and allowing for much better encapsulation and sand
 
 First, we need hardware. [As seen in my initial OS LLM tests](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram), I have access to a basic Bosgame mini PC with the new Ryzen AI 395 chip. After those initial tests, and considering current RAM rarity and prices, I extended my setup with another Bosgame mini PC. This also allows me to test and use a more complex local multi-node Kubernetes setup.
 
-Thus for this article we will use 2x AMD Strix Halo 128GB RAM mini PCs; 
+Thus for this article we will use 2x AMD Strix Halo 128GB RAM mini PCs;
 we will allocate both to have 94GB VRAM in BIOS; and we will leave the remaining RAM for backend and Kubernetes resources and other services.
 
 Since the setup gets more complex, I prefer not to rely on Docker Compose alone and instead choose an orchestration tool that I can also manage externally through an API. For me, that choice is Kubernetes; and for system configuration management I opted to use k3s, [instead of my usual microk8s](https://blog.t1m.me/blog/microk8s-on-vps-v2).
 
-Now we have solutions for Hardware ✅ and for Clustering software ✅.
+Now we have solutions for hardware ✅ and clustering software ✅.
 Both of the nodes currently run in a home-subnetwork with their own router ✅.
-But since I plan to set up a multi-region cluster in the future, I already extend this setup to work across networks and across LAN/WLAN.
+But since I plan to set up a multi-region cluster in the future, I am already extending this setup to work across networks and across LAN/WLAN.
 
 For that, we will use Tailscale in this setup;
 I'm also planning to build a more static setup that will work with WireGuard only in the future;
 but for now we choose convenience.
 
 Still, there are more missing parts:
-1. multi node LLM backend and orchestration
+1. multi-node LLM backend and orchestration
 2. load balancing and deployment
 
-So for 1. I'll choose a multi-helm chart ollama install, the initial aim is to just have two nodes that have the same models available and that can be load balanced between.
+So for 1. I'll choose a multi-node Ollama Helm chart install; the initial aim is to have two nodes with the same models available so they can be load-balanced.
 For 2. I'll choose [LiteLLM](https://www.litellm.ai/) as it's fairly easy to configure, supports API authorization, and supports the OpenAI API schema;
 and has a bunch of handy load balancing and routing features.
 
@@ -74,7 +74,7 @@ And of course all required basic system tooling:
 Also I've configured basic SSH keys for access to my nodes from inside my tailscale network.
 Similarly, I've created a setup that lets me pre-define hosts per system. This will be important later when we obtain DNS-01 certificates to resolve, for example, our LiteLLM dashboard through our tailnet.
 
-Here you can see my two KVM control tabs open, one seleted viewing current vram and cpu usage through btop and amdgpu.
+Here you can see my two KVM control tabs open, one selected and showing current VRAM and CPU usage through `btop` and `amdgpu`.
 
 <img alt="KVM Control screenshot" src="/static/assets/cluster_post/KVM_control_screenshot.png" />
 
@@ -217,7 +217,7 @@ helm upgrade --install amd-gpu rocm/amd-gpu \
   --namespace kube-system
 ```
 
-Now we can see the gpus listed:
+Now we can see the GPUs listed:
 
 ```bash
 kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.allocatable.amd\.com/gpu}{"\n"}{end}'
@@ -408,8 +408,8 @@ I opted to generate a general `PROXY_MASTER_KEY` instead of individual keys per 
 
 #### Configure LiteLLM to also route external providers
 
-I found it very conveniert to also use litellm to route paid external providers, as this gives me a certral location to manage access and tokens.
-As I've also run my benchmark on some public providers for comparison, this was also set-up, e.g.: one could add this to integrate openai `gpt-5.5` or `gpt-5.4-mini`:
+I found it very convenient to also use LiteLLM to route paid external providers, as this gives me a central location to manage access and tokens.
+As I've also run my benchmark on some public providers for comparison, this was also set up, e.g. one could add this to integrate OpenAI `gpt-5.5` or `gpt-5.4-mini`:
 
 
 ```yaml
@@ -428,7 +428,7 @@ As I've also run my benchmark on some public providers for comparison, this was 
         rpm: 180
 ```
 
-This can also be used very conveniently to mangage LLM access e.g.: in a company!
+This can also be used very conveniently to manage LLM access, e.g. in a company.
 And finally we can install the chart:
 
 ```bash
@@ -446,7 +446,7 @@ Now we can retrieve the master key:
 kubectl --kubeconfig "kubeconfig.yaml" -n ollama get secret litellm-ollama-masterkey -o jsonpath='{.data.masterkey}' | base64 -d
 ```
 
-Setup Complete! Now we can see all our clutsers and nodes running, and are ready for benchmarking!
+Setup complete. Now we can see all our clusters and nodes running, and we're ready for benchmarking.
 
 <img alt="K9s Cluster Online view" src="/static/assets/cluster_post/cluster_online_k9s_view.png" />
 
@@ -602,12 +602,12 @@ Legend: each context cell is `TTFT(ms) / tokens_per_second`.
 | `qwen3.6:35b` | 1343.6 / 44.83 | 2194.7 / 39.74 | 1585.0 / 44.90 | 3080.7 / 39.62 | 5332.7 / 42.15 | 9675.2 / 39.09 | 13807.2 / 41.01 | 26637.5 / 37.21 |
 
 
-After using some off the OSS LLMs for my workflows I realized:
-Maybe my context length test is wrong: Cause in normal chat session you continue with the exact previous context.
+After using some of the OSS LLMs for my workflows, I realized:
+Maybe my context length test is wrong, because in a normal chat session you continue with the exact previous context.
 In normal usage I experienced TTFT much lower than what I was seeing in my benchmarking.
-So I re-wrote the context size test, to actually emulate a 'continuing' session.
-But then I also realized that cache-re-use is only possible if the same request gets routed to the same node,
-_so anyways even after these changes the inital settings performed best_, I'll test further vairiation in future experiments.
+So I rewrote the context size test to actually emulate a "continuing" session.
+But then I also realized that cache reuse is only possible if the same request gets routed to the same node.
+_So even after these changes, the initial settings performed best_; I'll test further variations in future experiments.
 
 #### Re-Run Re-using old context on long context re-runs
 
@@ -675,7 +675,7 @@ This table compares TTFT (ms) only across context sizes for `gemma4-*`, `nemotro
 | C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `qwen3.6:35b` | 1856.4 | 1907.7 | 2123.4 | 3325.6 | 6113.1 | 10343.4 | 15384.7 | 26747.8 |
 
 
-So after that change still the TTFT stayed roughly the same ( but now we know we need some soft of cache-hit, node-re-use strategy in the future ).
+So after that change, TTFT still stayed roughly the same (but now we know we need some sort of cache-hit / node-reuse strategy in the future).
 
 That must be it for now, the article is way too long already.
 I'm starting to actively use my own hosted models for different things and will report back further in the future.
