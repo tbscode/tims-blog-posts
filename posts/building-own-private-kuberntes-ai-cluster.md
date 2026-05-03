@@ -1,5 +1,6 @@
 ---
 title: "Building a private LLM Cluster"
+image: "/static/assets/cluster_post/custer-setup-annotated.png"
 description: "A hands-on experiment building a self-managed at-home AI cluster with k3s, Ollama, and LiteLLM."
 date: "2026-04-29T23:38:00+02:00"
 featured: false
@@ -33,8 +34,8 @@ we will allocate both to have 94GB VRAM in BIOS; and we will leave the remaining
 
 Since the setup gets more complex, I prefer not to rely on Docker Compose alone and instead choose an orchestration tool that I can also manage externally through an API. For me, that choice is Kubernetes; and for system configuration management I opted to use k3s, [instead of my usual microk8s](https://blog.t1m.me/blog/microk8s-on-vps-v2).
 
-Now we have solutions for Hardware :check: and for Clustering software :check:.
-Both of the nodes currently run in a home-subnetwork with their own router :check:.
+Now we have solutions for Hardware ✅ and for Clustering software ✅.
+Both of the nodes currently run in a home-subnetwork with their own router ✅.
 But since I plan to set up a multi-region cluster in the future, I already extend this setup to work across networks and across LAN/WLAN.
 
 For that, we will use Tailscale in this setup;
@@ -54,6 +55,8 @@ and has a bunch of handy load balancing and routing features.
 For easy configuration and management of both nodes, I've connected both to KVMs. I can control, observe, and manage both nodes simply from my laptop; this is important as I do not have enough screens and keyboards, and I also don't want to manually set up all nodes.
 
 Here is a picture of the wiring; I've also configured a simple [hyprland](https://hypr.land/) setup with screen mirroring at my display resolution to allow me to easily view the screen on KVM and another monitor.
+
+<img alt="Real live KVM connection setup" src="/static/assets/cluster_post/custer-setup-annotated.png" />
 
 ### System Set-Up
 
@@ -265,20 +268,15 @@ nodeSelector:
   kubernetes.io/hostname: node-b
 
 extraEnv:
-  - name: OLLAMA_VULKAN
-    value: "1"
-  - name: OLLAMA_LLM_LIBRARY
-    value: vulkan
-  - name: OLLAMA_KEEP_ALIVE
-    value: 30m
+  <...ENV set-up see benchmark below...>
 
 resources:
   requests:
     cpu: "2000m"
-    memory: 8Gi
+    memory: 16Gi
   limits:
     cpu: "6000m"
-    memory: 24Gi
+    memory: 112Gi
 
 tests:
   enabled: true
@@ -307,6 +305,8 @@ I chose to use [this Helm chart](https://github.com/BerriAI/litellm/pkgs/contain
 
 We want our traffic to be routed based on system usage, i.e. when one mini PC is under NPU load it should receive less traffic.
 Optimally we also want the API to block traffic if the system is under so much load that the experience would be too bad (more on that later).
+
+<img alt="Real live KVM connection setup" src="/static/assets/cluster_post/custer-setup-annotated.png" />
 
 Setup basic chart values:
 
@@ -568,6 +568,81 @@ Legend: each context cell is `TTFT(ms) / tokens_per_second`.
 | `nemotron-cascade-2:30b` | 978.2 / 63.84 | 1539.3 / 60.44 | 1097.1 / 67.42 | 1798.6 / 56.09 | 2928.9 / 62.82 | 5282.0 / 54.56 | 7328.9 / 51.01 | 13637.7 / 52.39 |
 | `qwen3.6:27b` | 3537.2 / 10.85 | 5509.0 / 10.56 | 5746.9 / 10.68 | 11172.7 / 10.51 | 20261.7 / 10.68 | 36068.3 / 10.29 | 51735.6 / 10.32 | 94678.5 / 9.98 |
 | `qwen3.6:35b` | 1343.6 / 44.83 | 2194.7 / 39.74 | 1585.0 / 44.90 | 3080.7 / 39.62 | 5332.7 / 42.15 | 9675.2 / 39.09 | 13807.2 / 41.01 | 26637.5 / 37.21 |
+
+
+> After using some off the OSS LLMs for my workflows I realized:
+> Maybe my context length test is wrong: Cause in normal chat session you continue with the exact previous context.
+> In normal usage I experienced TTFT much lower than what I was seeing in my benchmarking.
+> So I re-wrote the context size test, to actually emulate a 'continuing' session.
+> But then I also realized that cache-re-use is only possible if the same request gets routed to the same node.
+
+#### Re-Run Re-using old context on long context re-runs
+
+##### 1) Basic benchmark comparison
+
+| Model | Avg tokens/s | Avg TTFT (ms) | Prompts | Max tokens | Temp | Stream | Ctx min | Ctx max | Connect timeout (s) | Read timeout (s) |
+|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|
+| `deepseek-r1:1.5b` | 162.31 | 218.50 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `deepseek-r1:14b` | 24.22 | 403.97 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `deepseek-r1:32b` | 11.15 | 630.48 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `deepseek-r1:7b` | 43.78 | 253.69 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `deepseek-r1:8b` | 38.75 | 267.04 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `gemma4-31b` | 10.85 | 898.85 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `gemma4:26b` | 37.45 | 502.19 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `gemma4:e4b` | 23.21 | 833.10 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `nemotron-cascade-2:30b` | 62.52 | 482.47 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `qwen3.6:27b` | 10.91 | 608.14 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+| `qwen3.6:35b` | 42.69 | 517.88 | 5 | 120 | 0.2 | True | 256 | 8192 |  |  |
+
+## 2) Context dependency matrix (cell = `TTFT ms / TPS`)
+
+| Model | 256 | 420 | 689 | 1131 | 1855 | 3043 | 4993 | 8192 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `deepseek-r1:1.5b` | 386.4 / 170.37 | 633.8 / 128.73 | 467.1 / 154.89 | 797.2 / 150.02 | 1047.0 / 152.96 | 2340.1 / 146.26 | 3648.6 / 208.68 | 8199.2 / 95.43 |
+| `deepseek-r1:14b` | 1925.3 / 23.73 | 2855.8 / 22.72 | 2860.2 / 22.71 | 4408.8 / 21.75 | 8118.4 / 21.00 | 14545.2 / 20.23 | 28582.2 / 19.31 | 62470.2 / 16.26 |
+| `deepseek-r1:32b` | 3958.9 / 11.09 | 6335.6 / 10.91 | 6457.5 / 10.80 | 10605.9 / 11.05 | 17941.0 / 10.49 | 30800.6 / 0.00 | 56235.0 / 9.53 | 114121.6 / 8.75 |
+| `deepseek-r1:7b` | 961.3 / 44.91 | 1520.0 / 41.48 | 1422.5 / 43.70 | 2272.6 / 40.85 | 3806.8 / 38.68 | 6812.1 / 37.37 | 12829.1 / 35.98 | 27943.1 / 33.45 |
+| `deepseek-r1:8b` | 1184.7 / 36.78 | 1582.0 / 37.40 | 1756.1 / 36.31 | 2634.8 / 37.90 | 4535.0 / 33.22 | 8299.6 / 30.55 | 16362.9 / 28.29 | 34171.7 / 24.80 |
+| `gemma4-31b` | 4578.4 / 10.10 | 6658.9 / 9.76 | 7037.5 / 9.88 | 11862.8 / 9.61 | 20464.6 / 9.74 | 41579.3 / 9.55 | 124721.5 / 9.00 | 561515.7 / 9.11 |
+| `gemma4:26b` | 1495.1 / 36.57 | 2438.6 / 29.14 | 1826.3 / 35.80 | 3453.3 / 28.67 | 4894.9 / 34.61 | 9459.4 / 28.73 | 16942.0 / 33.84 | 38030.7 / 28.35 |
+| `gemma4:e4b` | 7550.6 / 22.97 | 19217.4 / 15.42 | 12559.8 / 22.26 | 32229.7 / 15.67 | 34552.3 / 20.37 | 91452.3 / 15.03 | 120309.8 / 16.09 | 370979.0 / 11.58 |
+| `nemotron-cascade-2:30b` | 1043.1 / 63.70 | 1757.6 / 61.82 | 1249.8 / 63.68 | 2713.2 / 65.17 | 3504.5 / 61.79 | 8272.6 / 37.01 | 7918.5 / 52.50 | 15585.7 / 36.38 |
+| `qwen3.6:27b` | 3816.0 / 10.84 | 5900.3 / 10.54 | 6129.2 / 10.68 | 11886.5 / 10.19 | 20982.5 / 10.54 | 37356.6 / 10.29 | 53244.9 / 10.31 | 98825.9 / 9.58 |
+| `qwen3.6:35b` | 1856.4 / 38.02 | 1907.7 / 45.11 | 2123.4 / 37.48 | 3325.6 / 45.10 | 6113.1 / 36.96 | 10343.4 / 41.43 | 15384.7 / 34.27 | 26747.8 / 38.07 |
+
+Legend: each context cell is `TTFT(ms) / tokens_per_second`.
+
+
+#### Cross-setting TTFT context dependency (selected model families)
+
+This table compares TTFT (ms) only across context sizes for `gemma4-*`, `nemotron-cascade-*`, and `qwen3-*` over the different benchmark settings.
+
+| Setting | Parameters / benchmark behavior | Model | 256 | 420 | 689 | 1131 | 1855 | 3043 | 4993 | 8192 |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **A) Initial benchmark run** | **Pre re-run baseline from first matrix (no explicit env overrides listed in that section)** | **(divider)** | - | - | - | - | - | - | - | - |
+| A) Initial benchmark run | baseline | `gemma4-31b` | 4276.4 | 6296.4 | 6747.6 | 11411.5 | 19858.7 | 40756.8 | 136644.3 | 412691.0 |
+| A) Initial benchmark run | baseline | `gemma4:26b` | 1539.1 | 2353.9 | 1706.6 | 3227.9 | 4622.3 | 9168.0 | 16423.8 | 36809.2 |
+| A) Initial benchmark run | baseline | `gemma4:e4b` | 7438.0 | 18421.3 | 12118.5 | 31385.4 | 33828.8 | 91792.6 | 119861.2 | 359684.5 |
+| A) Initial benchmark run | baseline | `nemotron-cascade-2:30b` | 1097.9 | 1696.6 | 1098.9 | 1977.4 | 3135.1 | 5473.3 | 7581.8 | 13900.1 |
+| A) Initial benchmark run | baseline | `qwen3.6:27b` | 3516.2 | 5487.2 | 5691.8 | 11068.7 | 20218.5 | 36026.7 | 51709.2 | 94600.6 |
+| A) Initial benchmark run | baseline | `qwen3.6:35b` | 1555.5 | 1759.9 | 1760.5 | 3028.3 | 5332.8 | 9476.1 | 13865.3 | 25481.7 |
+| **B) Re-run with KV cache = f16** | **`OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=f16`, `OLLAMA_CONTEXT_LENGTH=32768`, `OLLAMA_KEEP_ALIVE=1h`, `OLLAMA_NUM_PARALLEL=1`, `OLLAMA_MAX_LOADED_MODELS=1`** | **(divider)** | - | - | - | - | - | - | - | - |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4-31b` | 4397.6 | 6220.6 | 6652.5 | 11416.4 | 20962.1 | 40675.2 | 135690.2 | 411124.6 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4:26b` | 1784.3 | 1912.4 | 2002.9 | 2857.8 | 5111.5 | 8601.7 | 16929.3 | 35758.9 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `gemma4:e4b` | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `nemotron-cascade-2:30b` | 978.2 | 1539.3 | 1097.1 | 1798.6 | 2928.9 | 5282.0 | 7328.9 | 13637.7 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `qwen3.6:27b` | 3537.2 | 5509.0 | 5746.9 | 11172.7 | 20261.7 | 36068.3 | 51735.6 | 94678.5 |
+| B) Re-run with KV cache = f16 | flash attention + f16 KV cache | `qwen3.6:35b` | 1343.6 | 2194.7 | 1585.0 | 3080.7 | 5332.7 | 9675.2 | 13807.2 | 26637.5 |
+| **C) Re-run with context re-use in benchmark flow** | **Benchmark changed to emulate continuing sessions (context re-use); same model family scope** | **(divider)** | - | - | - | - | - | - | - | - |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4-31b` | 4578.4 | 6658.9 | 7037.5 | 11862.8 | 20464.6 | 41579.3 | 124721.5 | 561515.7 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4:26b` | 1495.1 | 2438.6 | 1826.3 | 3453.3 | 4894.9 | 9459.4 | 16942.0 | 38030.7 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `gemma4:e4b` | 7550.6 | 19217.4 | 12559.8 | 32229.7 | 34552.3 | 91452.3 | 120309.8 | 370979.0 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `nemotron-cascade-2:30b` | 1043.1 | 1757.6 | 1249.8 | 2713.2 | 3504.5 | 8272.6 | 7918.5 | 15585.7 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `qwen3.6:27b` | 3816.0 | 5900.3 | 6129.2 | 11886.5 | 20982.5 | 37356.6 | 53244.9 | 98825.9 |
+| C) Re-run with context re-use in benchmark flow | continuing-session style context re-use | `qwen3.6:35b` | 1856.4 | 1907.7 | 2123.4 | 3325.6 | 6113.1 | 10343.4 | 15384.7 | 26747.8 |
+
+
+So after that change still the TTFT stayed roughly the same ( but now we know we need some soft of cache-hit, node-re-use strategy in the future ).
 
 That must be it for now, the article is way too long already.
 I'm starting to actively use my own hosted models for different things and will report back further in the future.
