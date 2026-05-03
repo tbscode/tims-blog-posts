@@ -74,6 +74,10 @@ And of course all required basic system tooling:
 Also I've configured basic SSH keys for access to my nodes from inside my tailscale network.
 Similarly, I've created a setup that lets me pre-define hosts per system. This will be important later when we obtain DNS-01 certificates to resolve, for example, our LiteLLM dashboard through our tailnet.
 
+Here you can see my two KVM control tabs open, one seleted viewing current vram and cpu usage through btop and amdgpu.
+
+<img alt="KVM Control screenshot" src="/static/assets/cluster_post/KVM_control_screenshot.png" />
+
 ### K3s Cluster Set-Up
 
 In networking, I chose to route cluster traffic over the tailnet to allow me to have mini PCs connected via LAN and WLAN,
@@ -306,7 +310,7 @@ I chose to use [this Helm chart](https://github.com/BerriAI/litellm/pkgs/contain
 We want our traffic to be routed based on system usage, i.e. when one mini PC is under NPU load it should receive less traffic.
 Optimally we also want the API to block traffic if the system is under so much load that the experience would be too bad (more on that later).
 
-<img alt="Real live KVM connection setup" src="/static/assets/cluster_post/custer-setup-annotated.png" />
+<img alt="LiteLLM Dashboard Screenshot" src="/static/assets/cluster_post/lite-llm-dashboard.png" />
 
 Setup basic chart values:
 
@@ -402,6 +406,29 @@ I opted to generate a general `PROXY_MASTER_KEY` instead of individual keys per 
     master_key: os.environ/PROXY_MASTER_KEY
 ```
 
+#### Configure LiteLLM to also route external providers
+
+I found it very conveniert to also use litellm to route paid external providers, as this gives me a certral location to manage access and tokens.
+As I've also run my benchmark on some public providers for comparison, this was also set-up, e.g.: one could add this to integrate openai `gpt-5.5` or `gpt-5.4-mini`:
+
+
+```yaml
+  model_list:
+    - model_name: gpt-5.5
+      litellm_params:
+        model: openai/gpt-5.5
+        api_base: https://api.openai.com/v1
+        api_key: os.environ/OPENAI_API_KEY
+        rpm: 120
+    - model_name: gpt-5.4-mini
+      litellm_params:
+        model: openai/gpt-5.4-mini
+        api_base: https://api.openai.com/v1
+        api_key: os.environ/OPENAI_API_KEY
+        rpm: 180
+```
+
+This can also be used very conveniently to mangage LLM access e.g.: in a company!
 And finally we can install the chart:
 
 ```bash
@@ -418,6 +445,11 @@ Now we can retrieve the master key:
 ```bash
 kubectl --kubeconfig "kubeconfig.yaml" -n ollama get secret litellm-ollama-masterkey -o jsonpath='{.data.masterkey}' | base64 -d
 ```
+
+Setup Complete! Now we can see all our clutsers and nodes running, and are ready for benchmarking!
+
+<img alt="K9s Cluster Online view" src="/static/assets/cluster_post/cluster_online_k9s_view.png" />
+
 
 ### Benchmark
 
