@@ -9,8 +9,6 @@ categories: ["DevOps", "Programming"]
 tags: ["Microk8s", "Kubernetes"]
 ---
 
-> Discover the cheapest and easiest way I've found to create personal Kubernetes clusters.
-
 This blog post provides a step-by-step guide to setting up a private Kubernetes cluster on a Virtual Private Server (VPS), with the following features ready and configured:
 
 - VPS firewall setup to expose HTTP/HTTPS & kubeapi server
