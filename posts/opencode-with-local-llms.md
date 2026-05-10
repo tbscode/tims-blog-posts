@@ -2,7 +2,7 @@
 title: "Opencode; Usability with Local LLMs on iGPU w 128GB vram: My Tests"
 description: "Testing and configuring opencode for usage with local llms"
 date: "2026-03-07"
-featured: true
+featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["AI", "Hardware"]
