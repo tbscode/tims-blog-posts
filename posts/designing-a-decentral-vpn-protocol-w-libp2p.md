@@ -1,7 +1,7 @@
 ---
 title: "A Botched Master Thesis Proposal and My Idea for a Decentralized VPN"
 description: "Attempt at creating my own Master Thesis Topic"
-date: "2026-07-06"
+date: "2026-06-07"
 featured: false
 postOfTheMonth: false
 author: "Tim Schupp"
