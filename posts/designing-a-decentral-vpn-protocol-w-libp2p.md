@@ -39,7 +39,7 @@ Open-chat is my [Open-Source llm automation tool-kit](https://github.com/msgmate
 7. is as simple as possible while maintaining (1-6)
 
 Loosely these were also the original thoughts when I started building it into 'open-chat' as an 'federation' implementation.
-I've published all the 'unclean' early experimentation code [now here in this repo]().
+I've published all the 'unclean' early experimentation code [now here in this repo](https://github.com/msgmate-io/open-chat-go-federation).
 
 In the proposal I sketed out a re-desin of that protocl and a-reimplementation relying on 4 basic data structures and 7 different api endpoints.
 
@@ -61,7 +61,7 @@ Each node needs some basic data structures for:
 - Routing Rules ( Hold per-node information for VPN routing )
 
 The approach this differs significantly from the proposal as it requires multiple additional models and logic to function.
-Yet it was fully functional and reliable in my initial experiments and experimental deployment; [e.g.: as I described in this blog post a while ago]().
+Yet it was fully functional and reliable in my initial experiments and experimental deployment; [e.g.: as I described in this blog post a while ago](https://blog.t1m.me/blog/breaking-through-nat).
 
 ### The Proposal
 
