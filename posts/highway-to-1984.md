@@ -2,7 +2,7 @@
 title: "'War is peace. Freedom is slavery. Ignorance is strength.'"
 description: "A quote from the Party in George Orwell's 1984. Indicators for increasing Surveillance, just a curated reference list, with some comments."
 date: "1984-09-21T16:56:47+06:00"
-featured: true
+featured: false
 postOfTheMonth: false
 sitemap: false
 author: "Tim Schupp"

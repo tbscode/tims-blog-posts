@@ -4,7 +4,7 @@ image: "/static/assets/cluster_post/custer-setup-annotated.png"
 description: "A hands-on experiment building a self-managed at-home AI cluster with k3s, Ollama, and LiteLLM."
 date: "2026-04-30T23:38:00+02:00"
 featured: true
-postOfTheMonth: true
+postOfTheMonth: false
 author: "Tim Schupp"
 categories: ["DevOps", "AI"]
 tags: ["Kubernetes", "k3s", "Ollama", "LiteLLM", "Self-Hosting", "LLM"]

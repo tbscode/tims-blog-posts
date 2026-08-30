@@ -2,8 +2,8 @@
 title: "My Titan 2 Elite Advanced Setup: The Pocket Terminal Conversion"
 description: "A hands-on guide on turning the Titan 2 Elite into a real pocket dev machine with Termux, tmux, opencode, a local LLM and a full Alpine Linux VM under QEMU."
 date: "2026-08-30"
-featured: false
-postOfTheMonth: false
+featured: true
+postOfTheMonth: true
 author: "Tim Schupp"
 categories: ["Linux", "Setup Guide", "Tools"]
 tags: ["Termux", "tmux", "Titan-2-Elite", "Android", "Open-Code", "Ollama", "QEMU", "Alpine", "Docker"]
