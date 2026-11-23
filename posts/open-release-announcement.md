@@ -14,11 +14,11 @@ tags: ["Open-Chat", "Open-Source", "LLM", "Self-Hosting", "AI", "Privacy", "Anno
 
 Hello everybody.
 
-Some of you might know [this video here from two something years ago](https://www.youtube.com/watch?v=OqT_kIhz8Dc), where I presented the concept for 'open-chat' and said: *"So I'm only developing on this project in my free time and cannot make any promises on the development speed, but I'm very motivated to help bringing out stuff that lets us run models locally."*
+Some of you might know [this video here from two or so years ago](https://www.youtube.com/watch?v=OqT_kIhz8Dc), where I presented the concept for 'open-chat' and said: *"So I'm only developing on this project in my free time and cannot make any promises on the development speed, but I'm very motivated to help bringing out stuff that lets us run models locally."*
 
-Well, it was quite silent since then - except for maybe some heard that I shut down the original [beta.msgmate.io](https://msgmate.io) due to time constraints - now today I'm finally back with a *serious update*.
+Well, it was quite silent since then - except that maybe some heard that I shut down the original [beta.msgmate.io](https://msgmate.io) due to time constraints - now today I'm finally back with a *serious update*.
 
-In my free time I've fully re-written [open-chat](https://github.com/msgmate-io/open-chat-go) in Go lang, especially to prepare for portability, cross-device compatibility and scalability.
+In my free time I've fully rewritten [open-chat](https://github.com/msgmate-io/open-chat-go) in Go, especially to prepare for portability, cross-device compatibility and scalability.
 
 So now open-chat is everything that I need, that you as a product "AI" user / developer may need, that a company rolling out "AI" products to their employees needs - and anything I ever wanted in an actual "AI" orchestration tool, while being fully sovereign, private and self-hostable. Fully self-controlled "AI" orchestration for you.
 

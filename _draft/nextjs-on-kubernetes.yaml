@@ -12,6 +12,6 @@ tags: ["Microk8s", "Kubernetes", "Helm", "NextJS"]
 - docker files for defining development and production nextjs images
 - docker compose files for building and pushing images
 - nextjs config to export static files
-- simple helm chart to create deployment, serive and ingress for exposing our app
+- simple helm chart to create deployment, service and ingress for exposing our app
   
-### Prequisites
+### Prerequisites

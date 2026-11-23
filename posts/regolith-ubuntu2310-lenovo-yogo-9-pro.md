@@ -137,7 +137,7 @@ bindsym $mod+Shift+K exec "DO SOMETHING"
 
 I like to map it to `Super+Shift+U`
 
-Then setup a keyboard shortcut like this: `gnome-screenshot -acf /tmp/test && cat /tmp/test | xclip -i -selection clipboard -target image/png`
+Then set up a keyboard shortcut like this: `gnome-screenshot -acf /tmp/test && cat /tmp/test | xclip -i -selection clipboard -target image/png`
 [as per this stack overflow answer](https://askubuntu.com/questions/1196914/gnome-screenshot-cant-copy-to-clipboard-in-ubuntu-18-04).
 
-I saw only this stategy working, copying directly with `-acf` wan't working for me.
+I saw only this strategy working, copying directly with `-acf` wasn't working for me.

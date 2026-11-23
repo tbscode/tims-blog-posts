@@ -1,6 +1,6 @@
 ---
 title: "Msgmate.io Development Update Oct 2023"
-description: "A progress and state update on the development of my msgmate.io plattform"
+description: "A progress and state update on the development of my msgmate.io platform"
 date: "2023-10-22T16:56:47+06:00"
 featured: false
 postOfTheMonth: false
@@ -84,7 +84,7 @@ Since the alpha launch in March, we've had 300 users register. A total of 6,331 
 
 Rest assured, I am taking all feedback seriously and am actively working to bring you a better and enhanced user experience.
 
-<strong style="color: red;">For now we limited msgmate.io alpha registrations untill we scaled our bot service to handle more chats in paralel</strong>
+<strong style="color: red;">For now we limited msgmate.io alpha registrations until we scale our bot service to handle more chats in parallel</strong>
 
 
 ### Development in the Software Stack

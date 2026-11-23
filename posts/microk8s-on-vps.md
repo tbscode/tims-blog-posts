@@ -51,7 +51,7 @@ PubkeyAuthentication yes # no before
 
 Then restart the ssh service `service ssh restart`
 
-> Note: these are minimal ssh setup setups and depending on the environment extra steps should be taken to make ssh more robust agains outside attacks.
+> Note: these are minimal SSH setup and depending on the environment extra steps should be taken to make ssh more robust against outside attacks.
 
 ## Step 3: Set up and enable the firewall
 
@@ -80,7 +80,7 @@ sudo microk8s start
 microk8s enable ingress dns hostpath-storage cert-manager
 ```
 
-If you want to use the current user to manage microk8s; this is not recomended for production clusters
+If you want to use the current user to manage microk8s; this is not recommended for production clusters
 
 ```
 sudo usermod -a -G microk8s <your-user>
@@ -115,8 +115,8 @@ sudo ufw allow in on cali+
 sudo ufw allow out on cali+
 ```
 
-To check for general configration issues use `microk8s inspect`
-This can give you some easy setup configuration infos and warnings such as:
+To check for general configuration issues use `microk8s inspect`
+This can give you some easy setup configuration information and warnings such as:
 
 To enable ip forwarding:
 
@@ -220,7 +220,7 @@ source <(kubectl completion bash)
 kubectl patch svc nodeport -p '{"spec":{"externalTrafficPolicy":"Local"}}'
 ```
 
-#### Testing the preservation of client IP adresses
+#### Testing the preservation of client IP addresses
 
 ```bash
 kubectl expose deployment source-ip-app --name=loadbalancer --port=80 --target-port=8080 --type=LoadBalancer

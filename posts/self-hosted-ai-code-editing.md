@@ -51,7 +51,7 @@ e.g.: start qwen coder:
 ollama run qwen3-coder:30b
 ```
 
-Then include it in your contine.dev configuration:
+Then include it in your continue.dev configuration:
 
 ```yaml
   - name: "Ollama self hosted"

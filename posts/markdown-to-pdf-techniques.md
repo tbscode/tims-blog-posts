@@ -20,7 +20,7 @@ pandoc -V geometry:margin=1cm <mardown-file> -o <pdf-file>
 ## Pandoc + `wkhtmltopdf`-engine
 
 - html support, e.g.: tables etc
-- dynmaic margin
+- dynamic margin
 
 ```bash
 pandoc --pdf-engine=wkhtmltopdf -V papersize=a4 -V margin-top=0.1 -V margin-left=0.1 -V margin-right=0.1 -V margin-bottom=0.1 --from markdown-markdown_in_html_blocks+raw_html <markdown-file> -o <pdf-file>

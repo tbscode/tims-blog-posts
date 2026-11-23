@@ -13,7 +13,7 @@ tags: ["Microk8s", "Kubernetes", "Helm", "Sentry"]
 
 Sentry is an incredibly nice error tracking tool; it can significantly increase the speed of bug fixing and debugging. It also offers a bunch of other features. You should also check out [their service](https://sentry.io)
 
-Since I like to know how the stuff works and willing to take it appart; I would always prefer to self-host if I can. This also gives me more comfort about controlling my own data which by the way also aids GDPR compliance (though this is also possible using Sentry's service directly).
+Since I like to know how the stuff works and am willing to take it apart; I would always prefer to self-host if I can. This also gives me more comfort about controlling my own data which by the way also aids GDPR compliance (though this is also possible using Sentry's service directly).
 
 Fortunately, there [still is a Helm chart](https://github.com/sentry-kubernetes/charts/tree/develop). 
 'Still', because for example: [the deprecated Posthog chart](https://github.com/PostHog/charts-clickhouse), but also the originally (officially maintained?) [sentry chart](https://github.com/helm/charts/tree/master/stable/sentry) seems deprecated now.
