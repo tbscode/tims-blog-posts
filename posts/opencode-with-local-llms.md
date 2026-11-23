@@ -13,8 +13,8 @@ image: "/static/assets/opencode-cover-new.png"
 <img width="1906" height="917" alt="OpenCode blog cover" src="/static/assets/opencode-blog-cover.png" />
 
 [Opencode](https://opencode.ai/) is a pretty cool and neatly composable terminal based llm coding agent.
-For a project at [tb-software](https://timschupp.de/) and also private personal use in general I'm especially interesting in the usage of open-code or similar tools with local llms, hosted on own hardware. See [my article on running and testing local llms on a 128gb strix halo setup here](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram).
-This article will describe my personal setup as well as some hints how to manage it using a nix-flake - this functions more as future reference - than direct instructions. But it may help someone configure open-code for local llm usage.
+For a project at [tb-software](https://timschupp.de/) and also private personal use in general I'm especially interested in using open-code or similar tools with local LLMs, hosted on my own hardware. See [my article on running and testing local LLMs on a 128GB Strix Halo setup here](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram).
+This article will describe my personal setup as well as some hints on how to manage it using a Nix flake - it functions more as a future reference than as direct instructions. But it may help someone configure open-code for local LLM usage.
 
 ### Configuring Open-Code
 
@@ -26,7 +26,7 @@ Just create a `opencode.json` like this:
   "provider": { ... },
 }
 ```
-Then start adding your providers, fistly the local llm one, e.g.: you could use here [ollama]() though there are probaly some better and more performant options out there ( _these I still have to test again / with newer models_ ). But project like localai lammacpp, ... come to mind. Anything that host api compatible with the openai api schema really.
+Then start adding your providers, first the local llm one, e.g.: you could use here [ollama]() though there are probably some better and more performant options out there ( _these I still have to test again / with newer models_ ). But project like localai llamacpp, ... come to mind. Anything that is API-compatible with the OpenAI API schema really.
 
 ```json
     "ollama": {
@@ -37,7 +37,7 @@ Then start adding your providers, fistly the local llm one, e.g.: you could use 
       },
       "models": { ... }
 ```
-e.g.: to test the models from [my latest benchark](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram) i added. _Of course you will have to pull the models and corretly setup and start the local lmm server first ( check my other post for an example using ollama on vulkan + nix )._
+e.g.: to test the models from [my latest benchmark](https://blog.t1m.me/blog/local-llms-on-strix-halo-128gb-shared-ram) I added. _Of course you will have to pull the models and correctly set up and start the local LLM server first ( check my other post for an example using ollama on vulkan + nix )._
 
 ```json
         "qwen3-coder-next": { "name": "qwen3-coder-next" },
@@ -139,7 +139,7 @@ Also if you want to use other remove non local providers to test oss models, you
 
 <img width="1906" height="917" alt="OpenCode performing git push" src="/static/assets/open-code-performing-git-push.png" />
 
-To mange my local open-code installation and configuration I've setup a simple nix flake, in a git sub-module that stores and pulls my open-code configuration and makes it globally available on configuration update.
+To manage my local open-code installation and configuration I've setup a simple nix flake, in a git sub-module that stores and pulls my open-code configuration and makes it globally available on configuration update.
 
 ```nix
 {

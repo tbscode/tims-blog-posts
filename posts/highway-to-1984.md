@@ -15,7 +15,7 @@ The list is meant for later reference and comments, if you find factually false 
 If you have comments are discussion points, also contact me. For a [change log, check the github history of this article](https://github.com/tbscode/tims-blog-posts/).
 
 The developments in Surveillance are related to the power exercises of a few,
-there are many more laws and regulation being instated that don't directly foster surveillance but ensure retention of power and ongoing corruption in governments and state actors. This goes so far that we pass many laws that have 'seemingly good intentions' but contain many causes that directly consolidate power of a few companies and actors, **this is a whole topic in itself and thus will receive it's own blog article in the future**.
+there are many more laws and regulations being instituted that don't directly foster surveillance but ensure retention of power and ongoing corruption in governments and state actors. This goes so far that we pass many laws that have 'seemingly good intentions' but contain many clauses that directly consolidate power of a few companies and actors, **this is a whole topic in itself and thus will receive its own blog article in the future**.
 
 <p style="text-align:center;">
   <img src="/static/assets/ClippyTimDark.png" alt="Clippy and Calvin" />
@@ -41,8 +41,8 @@ Age verification
 Additional Concerns are that the Online Safety act also contains status around *Encryption & client-side scanning*,
 which some argue could enable even further reaching surveillance.
 
-**Tim's Comment**: The enforcement hits the wrong target here. If it were actually fulfilling the goal of online safety, it would be no issue at all to enable global authentication at carrier level, thus restrict children's access without enforcing change with the platform owners. The way the law is currently set-up it allows for targeted censorship, which use we have already seen (3). Also forcing plattform owner to perform the age verification on their plattform but trough a 3rd party ventor, opens up many new angels for internet usage tracking of individuals.
-The EU's Digital Services Act is a somewhat 'weaker' but well better designed law that enforce similar but more controlled measures to protect against similar dangers.
+**Tim's Comment**: The enforcement hits the wrong target here. If it were actually fulfilling the goal of online safety, it would be no issue at all to enable global authentication at carrier level, thus restricting children's access without enforcing change with the platform owners. The way the law is currently set up allows for targeted censorship, the use of which we have already seen (3). Also, forcing platform owners to perform age verification on their platform through a third-party vendor opens up many new angles for internet usage tracking of individuals.
+The EU's Digital Services Act is a somewhat 'weaker' but better-designed law that enforces similar but more controlled measures to protect against similar dangers.
 
 #### Reference:
 
@@ -100,7 +100,7 @@ This coincides with broader use of Play Integrity, where apps check "installed b
 7. [F-Droids statement](https://f-droid.org/en/2025/09/29/google-developer-registration-decree.html)
 
 
-## `#MSFT-1` Windows Recal + MSA tied TUID
+## `#MSFT-1` Windows Recall + MSA tied TUID
 
 Windows 11 develops in a similar way as Android and IOS with their device integrity apis.
 With Win11 TPM 2.0 and Secure Boot are enableed by default and and siginifantly harder up to impossible to circumvent.
@@ -108,7 +108,7 @@ This plus moving windows towards being usable with Microsoft Account, Any attest
 
 TPM 2.0 + Secure Boot are the default for supported installs, while setup heavily steers you into a Microsoft Account. The TPM isn't "spyware"; it's a secure coprocessor (keys, PCR measurements, sealing, attestation). But combined with Windows' security stack (BitLocker/Device Encryption, VBS/HVCI, Windows Hello) and the cloud defaults (OneDrive/Store/Widgets/Copilot), it makes proving "this exact machine, in this exact state, used by this signed‑in person" easy—when services choose to enforce it. That's great for stopping disk theft and some malware; it's bad for staying low‑friction anonymous. Remote attestation can become a gate: prove genuine Windows and an unmodified boot chain or get blocked, a model already used in enterprise and increasingly mirrored by anti‑cheat/DRM‑like systems. With MSA, devices are registered, encryption keys may be backed up, and telemetry/online features link behavior to account and hardware; Pluton on some CPUs further centralizes the root of trust. You can still go local‑account, trim telemetry, avoid MS services, use a VM, or switch OS—but these are now "advanced user paths," and the trend is to narrow them.
 
-**Tim's Comment**: The mechanisms (TPM, Secure Boot) are genuinely useful for security, but the risk is how they're combined with mandatory online identity, opaque telemetry, and attestation used as an access/lockdown weapon. This shifts power from the device owner to the platform vendor. Remote attestation can become "show me you're running unmodified, approved software or you're out"—already happening in enterprise and anti‑cheat scenarios. The MSA requirement + TPM‑backed identity + telemetry systematicly threaten user anonymity and privacy. As with other surveillance capabilities, we know **existing capabilities WILL be abused**. The trend toward narrowing local‑account and offline paths, while pushing cloud‑first defaults, makes truly anonymous, de‑tethered usage more work than on older Windows—and Microsoft keeps closing workarounds.
+**Tim's Comment**: The mechanisms (TPM, Secure Boot) are genuinely useful for security, but the risk is how they're combined with mandatory online identity, opaque telemetry, and attestation used as an access/lockdown weapon. This shifts power from the device owner to the platform vendor. Remote attestation can become "show me you're running unmodified, approved software or you're out"—already happening in enterprise and anti‑cheat scenarios. The MSA requirement + TPM‑backed identity + telemetry systematically threaten user anonymity and privacy. As with other surveillance capabilities, we know **existing capabilities WILL be abused**. The trend toward narrowing local‑account and offline paths, while pushing cloud‑first defaults, makes truly anonymous, de‑tethered usage more work than on older Windows—and Microsoft keeps closing workarounds.
 
 #### References:
 
@@ -123,7 +123,7 @@ I strongly encourage everyone to do their own research on the topic, circle back
 
 1. [The Survailence Report](https://surveillancereport.tech/)
 2. [Missfits: Enshitification](https://us.macmillan.com/books/9780374619329/enshittification/)
-3. [Manufacturing Consent](https://en.wikipedia.org/wiki/Manufacturing_Consent) A book more relevant then ever. 
+3. [Manufacturing Consent](https://en.wikipedia.org/wiki/Manufacturing_Consent) A book more relevant than ever. 
 *Quick Call-out: 🔩 you Studien Stiftung Deutschland for discrediting 'Manufactoring Consent' as globally not relevant topic in 2017*
 4. [Consumer Rights](https://consumerrights.wiki/w/Main_Page)
-5. [Flock Safetly Cameras](https://www.youtube.com/watch?v=_a14lplBg2Y)
+5. [Flock Safety Cameras](https://www.youtube.com/watch?v=_a14lplBg2Y)

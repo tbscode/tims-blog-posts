@@ -19,9 +19,9 @@ Anyways what was this 'idea' about and how did it form?
 As I was learning go lang or maybe even some time before when I was playing with messengers; learning about encryption and things;
 or maybe even Waaaaaay before; When I was 14 I built [this little RSA calculator app]() which only remaining archive reference is that old archive link here.
 
-Whats my point? Yeah I was interested in encryption, privacy, decentralized systems, torrents, peer to peer - anything in that space, for a while; crypto-coin related stuff not so much - some of the blockchain use cases and technologies were still interesting to me - in a sense which technical capabilities they provide.
+What's my point? Yeah I was interested in encryption, privacy, decentralized systems, torrents, peer to peer - anything in that space, for a while; crypto-coin related stuff not so much - some of the blockchain use cases and technologies were still interesting to me - in the sense of what technical capabilities they provide.
 
-So some day when I was exploring to learn golang - prob a decision in one of my many ventures in building realtime chat apps - I ended up stumbling upon [libp2p]().
+So some day when I was exploring to learn golang - probably a decision in one of my many ventures in building realtime chat apps - I ended up stumbling upon [libp2p]().
 Very intrigued by the idea or a having a well crafted; clear protocol, that can be implemented in several languages and solve a stack of challenges in communication systems with focus on p2p.
 
 ### Initial experiments
@@ -41,9 +41,9 @@ Open-chat is my [Open-Source llm automation tool-kit](https://github.com/msgmate
 Loosely these were also the original thoughts when I started building it into 'open-chat' as an 'federation' implementation.
 I've published all the 'unclean' early experimentation code [now here in this repo](https://github.com/msgmate-io/open-chat-go-federation).
 
-In the proposal I sketed out a re-desin of that protocl and a-reimplementation relying on 4 basic data structures and 7 different api endpoints.
+In the proposal I sketched out a redesign of that protocol and a reimplementation relying on 4 basic data structures and 7 different api endpoints.
 
-The minimal system desined for this Thesis would require at-least the development of these APIs:
+The minimal system designed for this Thesis would require at least the development of these APIs:
 - `GET /peer_info`: Endpoint to access node id peer information
 - `GET /get_federation_node/<peer-id>/` retrieves node info of a federation member
 - `POST /relay_network_request/<network>/<peer-id>/` sends a HTTP requests into the network
@@ -65,7 +65,7 @@ Yet it was fully functional and reliable in my initial experiments and experimen
 
 ### The Proposal
 
-Here you can read the original proposal as it was handed in - and prob read maybe once.
+Here you can read the original proposal as it was handed in - and probably read maybe once.
 I censored the receiver name and the course and anything related to the people involved except my own name.
 
 <iframe
@@ -82,11 +82,11 @@ So writing this post is for now shall be the 'ticket' to continue here some time
 
 ### Outlook ?!
 
-Yeah still like the idea; prob its horribly hard to get right and way more complicated than I imagine - quite a things I'd like to bite a thought out on though.
+Yeah still like the idea; probably it's horribly hard to get right and way more complicated than I imagine - quite a thing I'd like to think through more.
 So given the time and opportunity I'd love to build and test such a thing even better in a Scientific context.
 
 So maybe I shared this post with you for context; or you found it somehow
--> in any case if you are interested in helping out or have an Idea where I could hand in another proposal attemt
+-> in any case if you are interested in helping out or have an Idea where I could hand in another proposal attempt
 
 
 > then let me know: `tim+libp2p-vpn@timschupp.de`

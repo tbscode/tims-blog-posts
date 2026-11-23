@@ -35,7 +35,7 @@ I've experimented & compiled the following table, to compare various services ba
 - <a id="4"></a>**#4 Zoom**: Compatibility issues noted with WebView; [native or react-native Zoom clients necessary](https://developers.zoom.us/docs/video-sdk/react-native/)
 - <a id="5"></a>**#5 Jitsi**: Even has mobile webview / capacitor support ( no need for native / react native )
 - <a id="6"></a>**#6 Jitsi 8x8 Conferencing**: Expensive for broader usage.
-- <a id="7"></a>**#7 Zoom**: Pricing model based on usage; but specificly low entry pricing / many free minutes per month
+- <a id="7"></a>**#7 Zoom**: Pricing model based on usage; but specifically low entry pricing / many free minutes per month
 - <a id="8"></a>**#8 Zoom**: The SDK constrains customization options, offering default Zoom UI.
 
 For developers seeking to replace Twilio Video Calls, this comparison sheds light on several viable alternatives. Each service offers a unique blend of features and constraints, making it crucial to align the choice with the specific needs of your application and user base. 

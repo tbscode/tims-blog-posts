@@ -133,6 +133,6 @@ By requiring `sslmode='require'`, the script confirms that the connection is not
 
 ### Wrapping Up
 
-The combination of Microk8s's simplicity and Helm's power simplifies the deployment of a robust PostgreSQL database. TLS encryption, managed by cert-manager, makes sure the data remains secure in transit. For developers and administrators looking to setup PostgreSQL on Kubernetes, the process is now streamlined, automated, and immeasurably more secure than before.
+The combination of MicroK8s's simplicity and Helm's power simplifies the deployment of a robust PostgreSQL database. TLS encryption, managed by cert-manager, makes sure the data remains secure in transit. For developers and administrators looking to set up PostgreSQL on Kubernetes, the process is now streamlined, automated, and immeasurably more secure than before.
 
 Do check out the full deployment script and accompanying resources on the [GitHub repository](https://github.com/tbscode/tims-blog-posts/blob/main/assets/postgress_create_dynamic_k8s.sh) and ensure your databases are secure from setup to daily operations.

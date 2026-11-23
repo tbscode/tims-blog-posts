@@ -13,7 +13,7 @@ I needed a PostgreSQL setup on Kubernetes that is:
 
 - allows automatic creation of db instances
 - allow configuration based pre-defining users, passwords and configurations
-- can be included into other helm charts as depencency
+- can be included into other helm charts as dependency
 - single configuration, one-install, full setup approach
 
 For this, [CloudNativePG Helm Chart](TODO) is one of the cleanest approaches I've found so far ( after the [Bitnami Postgsql Helm Chart being moved closed source]() ).
